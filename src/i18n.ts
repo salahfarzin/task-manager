@@ -28,6 +28,8 @@ const resources = {
             'task.addAttachment': 'Add Attachment',
             'task.mentions': 'Mentions',
             'task.createdAt': 'Created',
+            'task.estimation': 'Estimation (Hours)',
+            'task.assignee': 'Assignee',
             'task.updatedAt': 'Updated',
             'task.delete': 'Delete Task',
             'task.save': 'Save',

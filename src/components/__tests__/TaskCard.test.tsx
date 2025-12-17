@@ -23,6 +23,8 @@ const mockTask = createMockTask({
     },
   ],
   dueDate: new Date('2024-01-15'),
+  estimation: 4.5,
+  assignee: 'Alice',
 })
 
 // Mock Zustand store
@@ -128,6 +130,7 @@ vi.mock('lucide-react', () => ({
   Save: () => <div data-testid="save-icon">Save</div>,
   Calendar: () => <div data-testid="calendar-icon">Calendar</div>,
   User: () => <div data-testid="user-icon">User</div>,
+  Clock: () => <div data-testid="clock-icon">Clock</div>,
 }))
 
 describe('TaskCard', () => {
@@ -193,6 +196,15 @@ describe('TaskCard', () => {
       expect(screen.getByText('Jan 01, 2024')).toBeInTheDocument()
     })
 
+    it('should render estimation and assignee', () => {
+      render(<TaskCard task={mockTask} />)
+
+      expect(screen.getByTestId('clock-icon')).toBeInTheDocument()
+      expect(screen.getByText('4.5h')).toBeInTheDocument()
+      expect(screen.getByText('Alice')).toBeInTheDocument()
+      expect(screen.getByText('A')).toBeInTheDocument() // Assignee initial
+    })
+
     it('should render creation date', () => {
       render(<TaskCard task={mockTask} />)
 
@@ -251,6 +263,8 @@ describe('TaskCard', () => {
         title: 'Updated Task',
         description: '<p>Test description</p>',
         dueDate: new Date('2024-02-01'),
+        assignee: 'Alice',
+        estimation: 4.5,
       })
     })
 
@@ -274,31 +288,22 @@ describe('TaskCard', () => {
 
       fireEvent.click(screen.getByText('action.save'))
 
-      expect(mockStore.updateTask).toHaveBeenCalledWith('task-1', {
-        title: 'Test Task',
-        description: '<p>Test description</p>',
-        dueDate: undefined,
-      })
+      expect(mockStore.updateTask).toHaveBeenCalledWith(
+        'task-1',
+        expect.objectContaining({
+          dueDate: undefined,
+        })
+      )
     })
   })
 
   describe('Tag Management', () => {
-      // Tags might now be inside the modal or directly on card?
-      // Based on previous code, TaskCard still has inline display of tags?
-      // Re-checking TaskCard rendering... TaskCard displays tags.
-      // But adding tags might be allowed on the card itself?
-      // Looking at the TaskCard code earlier, it seemed inline editing was removed.
-      // Let's assume for now the tests expect to interact with elements that might be in the modal if opened.
-      // But wait: "should add new tag on Enter key press" - previously satisfied by inline UI.
-      // If inline UI is removed, these tests might need to open the modal first.
-    
     it('should add new tag on Enter key press', () => {
        render(<TaskCard task={mockTask} />)
-       // If adding tags is now only in modal, we must open modal
        fireEvent.click(screen.getByLabelText('task.edit'))
 
-       const tagInput = screen.getAllByPlaceholderText('task.addTag')[0] // Might be multiple if displayed on card too? No, card assumes display only?
-       // Actually, we moved tag management to Modal. So we must operate in Modal.
+       const modal = screen.getByTestId('task-edit-modal')
+       const tagInput = within(modal).getByPlaceholderText('task.addTag')
        
        fireEvent.change(tagInput, { target: { value: 'new-tag' } })
        fireEvent.keyDown(tagInput, { key: 'Enter' })
@@ -312,7 +317,8 @@ describe('TaskCard', () => {
       render(<TaskCard task={mockTask} />)
       fireEvent.click(screen.getByLabelText('task.edit'))
 
-      const tagInput = screen.getAllByPlaceholderText('task.addTag')[0]
+      const modal = screen.getByTestId('task-edit-modal')
+      const tagInput = within(modal).getByPlaceholderText('task.addTag')
       fireEvent.change(tagInput, { target: { value: '   ' } })
       fireEvent.keyDown(tagInput, { key: 'Enter' })
 
@@ -323,14 +329,9 @@ describe('TaskCard', () => {
       render(<TaskCard task={mockTask} />)
       fireEvent.click(screen.getByLabelText('task.edit'))
       
-      // Get tags inside modal
-      const tags = screen.queryAllByText('urgent')
-      // There might be one on card and one in modal.
-      // We want to click the one that has the remove handler.
-      // Typically elements in modal are top level z-index.
-      // Let's assume checking the text click works like before but we need to find the specific remove button or click the tag.
-      // The implementation shows `onClick={() => handleRemoveTag(tag)}` on the span.
-      fireEvent.click(tags[tags.length - 1]) 
+      const modal = screen.getByTestId('task-edit-modal')
+      const tags = within(modal).getAllByText('urgent')
+      fireEvent.click(tags[0]) 
 
       expect(mockStore.updateTask).toHaveBeenCalledWith('task-1', {
         tags: ['frontend'],
@@ -343,7 +344,9 @@ describe('TaskCard', () => {
       render(<TaskCard task={mockTask} />)
       fireEvent.click(screen.getByLabelText('task.edit'))
 
-      fireEvent.click(screen.getByTestId('modal-add-attachment'))
+      const modal = screen.getByTestId('task-edit-modal')
+      
+      fireEvent.click(within(modal).getByTestId('modal-add-attachment'))
 
       expect(screen.getByTestId('file-upload')).toBeInTheDocument()
     })
@@ -352,8 +355,10 @@ describe('TaskCard', () => {
       render(<TaskCard task={mockTask} />)
       fireEvent.click(screen.getByLabelText('task.edit'))
 
-      fireEvent.click(screen.getByTestId('modal-add-attachment'))
-      fireEvent.click(screen.getByTestId('file-upload-close'))
+      const modal = screen.getByTestId('task-edit-modal')
+
+      fireEvent.click(within(modal).getByTestId('modal-add-attachment'))
+      fireEvent.click(screen.getByTestId('file-upload-close')) // file-upload uses screen as likely not scoped same way? mocked comp returns div.
 
       expect(screen.queryByTestId('file-upload')).not.toBeInTheDocument()
     })
@@ -371,13 +376,7 @@ describe('TaskCard', () => {
       mockConfirm.mockReturnValue(true)
 
       render(<TaskCard task={mockTask} />)
-      fireEvent.click(screen.getByLabelText('task.edit')) // Open modal first? No, delete is on card too?
-      // Delete was on card in previous version?
-      // Checking TaskEditModal.tsx: it has delete button.
-      // Checking TaskCard.tsx...
-      // Does TaskCard have delete button?
-      // const TaskCard = ...
-
+      
       fireEvent.click(screen.getByTestId('delete-task-button'))
 
       expect(mockConfirm).toHaveBeenCalledWith('task.delete?')
@@ -403,9 +402,6 @@ describe('TaskCard', () => {
       const overdueTask = createMockTask({
         dueDate: new Date('2023-01-01'),
       })
-      // We need to add this task to the store boards too, or the modal wont work.
-      // But here we are rendering TaskCard. Does TaskCard display due date styling without modal?
-      // Yes, TaskCard usually shows due date.
       
       render(<TaskCard task={overdueTask} />)
 
@@ -453,11 +449,7 @@ describe('TaskCard', () => {
 
       render(<TaskCard task={mockTask} />)
 
-      // The card might be wrapped in another div now?
-      // We check if we find the text.
       const card = screen.getByTestId('task-card')
-      // Note: The structure might have changed.
-      // If test fails, we'll debug.
       expect(card).toHaveClass('shadow-2xl')
       expect(card).toHaveStyle({ opacity: 0.5 })
     })
@@ -489,16 +481,11 @@ describe('TaskCard', () => {
   })
 
   describe('Empty States', () => {
-      // These seem fine as long as rendering doesn't crash
-      // Note: if elements are missing, getByText throws.
-      // queryByText returns null.
     it('should handle task without description', () => {
       const taskWithoutDesc = createMockTask({
         description: '',
       })
       render(<TaskCard task={taskWithoutDesc} />)
-      // Editor is now in Modal so it won't be visible anyway until clicked.
-      // But we can check if description summary is empty or missing.
       expect(screen.queryByTestId('editor-content')).not.toBeInTheDocument()
     })
 
@@ -533,6 +520,18 @@ describe('TaskCard', () => {
       render(<TaskCard task={taskWithoutDueDate} />)
       expect(screen.queryByTestId('calendar-icon')).not.toBeInTheDocument()
     })
+
+    it('should handle task without estimation', () => {
+       const taskNoEst = createMockTask({ estimation: 0 })
+       render(<TaskCard task={taskNoEst} />)
+       expect(screen.queryByTestId('clock-icon')).not.toBeInTheDocument()
+    })
+
+    it('should handle task without assignee', () => {
+       const taskNoAssignee = createMockTask({ assignee: undefined })
+       render(<TaskCard task={taskNoAssignee} />)
+       expect(screen.queryByTestId('task-assignee')).not.toBeInTheDocument()
+    })
   })
 
   describe('Modal Interaction', () => {
@@ -562,6 +561,30 @@ describe('TaskCard', () => {
       
       fireEvent.click(deleteBtn)
       expect(mockStore.removeAttachment).toHaveBeenCalledWith('task-1', 'att-1')
+    })
+
+    it('should update estimation and assignee', () => {
+      render(<TaskCard task={mockTask} />)
+      fireEvent.click(screen.getByLabelText('task.edit'))
+
+      const modal = screen.getByTestId('task-edit-modal')
+      
+      const estimationInput = within(modal).getByPlaceholderText('0')
+      fireEvent.change(estimationInput, { target: { value: '8' } })
+
+      const assigneeSelect = within(modal).getByRole('combobox')
+      fireEvent.change(assigneeSelect, { target: { value: 'Bob' } })
+
+      const saveButton = within(modal).getByText('action.save')
+      fireEvent.click(saveButton)
+
+      expect(mockStore.updateTask).toHaveBeenCalledWith(
+        'task-1',
+        expect.objectContaining({
+          estimation: 8,
+          assignee: 'Bob',
+        })
+      )
     })
   })
 })

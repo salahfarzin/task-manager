@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Edit, Trash2, Paperclip, Tag, X, Calendar, User } from 'lucide-react';
+import { Edit, Trash2, Paperclip, Tag, X, Calendar, User, Clock } from 'lucide-react';
 import { format, isPast, isToday, isTomorrow } from 'date-fns';
 import type { Task } from '../store/taskStore';
 import { useTaskStore } from '../store/taskStore';
@@ -230,6 +230,35 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               <span>{format(task.dueDate, 'MMM dd, yyyy')}</span>
             </div>
           )}
+
+          {/* Estimation & Assignee */}
+          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+            {task.estimation && (task.estimation > 0) && (
+              <div 
+                data-testid="task-estimation"
+                className="flex items-center space-x-1 rtl:space-x-reverse text-sm text-slate-600 dark:text-slate-400"
+                title={t('task.estimation')}
+              >
+                <Clock className="w-4 h-4" />
+                <span>{task.estimation}h</span>
+              </div>
+            )}
+            
+            {task.assignee && (
+              <div 
+                data-testid="task-assignee"
+                className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-slate-600 dark:text-slate-400"
+              >
+                <div 
+                  className="w-6 h-6 bg-purple-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800"
+                  title={task.assignee}
+                >
+                  {task.assignee.charAt(0).toUpperCase()}
+                </div>
+                <span>{task.assignee}</span>
+              </div>
+            )}
+          </div>
 
           {/* Metadata */}
           <div className="text-xs text-slate-700 dark:text-slate-300 pt-2 border-t border-slate-200 dark:border-slate-700 animate-fade-in">

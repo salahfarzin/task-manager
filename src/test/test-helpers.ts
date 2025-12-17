@@ -46,6 +46,8 @@ export const createMockTask = (overrides = {}) => ({
   mentions: [],
   listId: 'list-1',
   order: 0,
+  estimation: 0,
+  assignee: undefined,
   ...overrides,
 })
 

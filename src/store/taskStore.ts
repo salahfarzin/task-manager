@@ -22,6 +22,8 @@ export interface Task {
     listId: string;
     order: number;
     dueDate?: Date;
+    estimation?: number;
+    assignee?: string;
 }
 
 export interface List {
@@ -81,6 +83,8 @@ export const useTaskStore = create<TaskStore>((set) => ({
                             listId: 'list-1',
                             order: 0,
                             dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+                            estimation: 5,
+                            assignee: 'Alice',
                         },
                     ],
                 },
@@ -243,6 +247,8 @@ export const useTaskStore = create<TaskStore>((set) => ({
                                             updatedAt: new Date(),
                                             listId,
                                             order: list.tasks.length,
+                                            estimation: 0,
+                                            assignee: undefined,
                                         },
                                     ],
                                 }

@@ -28,6 +28,10 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
   const [newTag, setNewTag] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [dueDate, setDueDate] = useState('');
+  const [estimation, setEstimation] = useState('');
+  const [assignee, setAssignee] = useState('');
+
+  const users = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve'];
 
   // Sync state when modal opens or task changes
   useEffect(() => {
@@ -35,6 +39,8 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
       setTitle(task.title);
       setDescription(task.description);
       setDueDate(task.dueDate ? format(task.dueDate, 'yyyy-MM-dd') : '');
+      setEstimation(task.estimation?.toString() || '');
+      setAssignee(task.assignee || '');
       setShowFileUpload(false);
     }
   }, [taskId, isOpen]);
@@ -63,7 +69,12 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
   if (!isOpen || !task) return null;
 
   const handleSave = () => {
-    const updates: Partial<Task> = { title, description };
+    const updates: Partial<Task> = {
+      title,
+      description,
+      estimation: estimation ? parseFloat(estimation) : undefined,
+      assignee: assignee || undefined,
+    };
     if (dueDate) {
       updates.dueDate = new Date(dueDate);
     } else {
@@ -208,6 +219,44 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
               onChange={(e) => setDueDate(e.target.value)}
               className="input-base"
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Estimation */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {t('task.estimation')}
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={estimation}
+                onChange={(e) => setEstimation(e.target.value)}
+                className="input-base"
+                placeholder="0"
+              />
+            </div>
+
+            {/* Assignee */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <User className="w-4 h-4 inline-block ltr:mr-2 rtl:ml-2" />
+                {t('task.assignee')}
+              </label>
+              <select
+                value={assignee}
+                onChange={(e) => setAssignee(e.target.value)}
+                className="input-base"
+              >
+                <option value="">Unassigned</option>
+                {users.map((user) => (
+                  <option key={user} value={user}>
+                    {user}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
 
