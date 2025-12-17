@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { Header } from './components/Header';
-import { Board } from './components/Board';
-import './i18n';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { Header } from '@/components/Header';
+import { Board } from '@/components/Board';
+import '@/i18n';
 
 function App() {
   const { i18n } = useTranslation();

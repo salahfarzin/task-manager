@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, ChevronDown, X } from 'lucide-react';
 import { useTaskStore } from '../store/taskStore';
@@ -9,8 +9,25 @@ export const BoardSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAddingBoard, setIsAddingBoard] = useState(false);
   const [newBoardTitle, setNewBoardTitle] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const currentBoard = boards.find(b => b.id === currentBoardId);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleAddBoard = () => {
     if (newBoardTitle.trim()) {
@@ -28,7 +45,7 @@ export const BoardSelector: React.FC = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center space-x-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
@@ -60,6 +77,7 @@ export const BoardSelector: React.FC = () => {
                   <button
                     onClick={(e) => handleDeleteBoard(board.id, e)}
                     className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400"
+                    aria-label={`Delete board ${board.title}`}
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -88,6 +106,7 @@ export const BoardSelector: React.FC = () => {
                   <button
                     onClick={handleAddBoard}
                     className="p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                    aria-label="Add board"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
