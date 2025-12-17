@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Edit, Trash2, Paperclip, Tag, X, Save, Calendar, User } from 'lucide-react';
+import { Edit, Trash2, Paperclip, Tag, X, Calendar, User } from 'lucide-react';
 import { format, isPast, isToday, isTomorrow } from 'date-fns';
 import type { Task } from '../store/taskStore';
 import { useTaskStore } from '../store/taskStore';
-import { RichTextEditor } from './RichTextEditor';
 import { FileUpload } from './FileUpload';
+import { TaskEditModal } from './TaskEditModal';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -15,12 +16,9 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const { t } = useTranslation();
-  const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTag, setNewTag] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
-  const [dueDate, setDueDate] = useState(task.dueDate ? format(task.dueDate, 'yyyy-MM-dd') : '');
   
   const { updateTask, deleteTask, removeAttachment } = useTaskStore();
 
@@ -39,16 +37,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const handleSave = () => {
-    const updates: Partial<Task> = { title, description };
-    if (dueDate) {
-      updates.dueDate = new Date(dueDate);
-    } else {
-      updates.dueDate = undefined;
-    }
-    updateTask(task.id, updates);
-    setIsEditing(false);
-  };
+
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && newTag.trim()) {
@@ -87,56 +76,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`glass rounded-xl p-4 mb-3 card-hover animate-scale-in ${
-        isDragging ? 'shadow-2xl' : 'shadow-md'
-      }`}
-    >
-      {isEditing ? (
-        <div className="space-y-3 animate-slide-in">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="input-base font-semibold"
-            placeholder={t('placeholder.taskTitle')}
-          />
-
-          <RichTextEditor
-            content={description}
-            onChange={setDescription}
-            placeholder={t('task.addDescription')}
-          />
-
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <Calendar className="w-4 h-4 text-slate-700 dark:text-slate-400" />
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="input-base text-sm"
-            />
-          </div>
-
-          <div className="flex items-center space-x-2 rtl:space-x-reverse">
-            <button onClick={handleSave} className="btn-primary flex items-center space-x-2 rtl:space-x-reverse hover:scale-105 transition-transform">
-              <Save className="w-4 h-4" />
-              <span>{t('action.save')}</span>
-            </button>
-            <button
-              onClick={() => setIsEditing(false)}
-              className="btn-secondary flex items-center space-x-2 rtl:space-x-reverse hover:scale-105 transition-transform"
-            >
-              <X className="w-4 h-4" />
-              <span>{t('action.cancel')}</span>
-            </button>
-          </div>
-        </div>
-      ) : (
+    <>
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className={`glass rounded-xl p-4 mb-3 card-hover animate-scale-in ${
+          isDragging ? 'shadow-2xl' : 'shadow-md'
+        }`}
+      >
         <div className="space-y-3">
           <div className="flex items-start justify-between">
             <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex-1">
@@ -144,7 +93,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             </h3>
             <div className="flex items-center space-x-1 rtl:space-x-reverse">
               <button
-                onClick={() => setIsEditing(true)}
+                onClick={() => setIsModalOpen(true)}
                 className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 group hover:scale-110"
                 aria-label={t('task.edit')}
               >
@@ -162,8 +111,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
           {task.description && (
             <div
-              className="prose prose-sm dark:prose-invert max-w-none animate-fade-in"
+              className="prose prose-sm dark:prose-invert max-w-none animate-fade-in cursor-pointer hover:opacity-80 transition-opacity"
               dangerouslySetInnerHTML={{ __html: task.description }}
+              onClick={() => setIsModalOpen(true)}
             />
           )}
 
@@ -279,7 +229,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             {t('task.createdAt')}: {format(new Date(task.createdAt), 'MMM dd, yyyy')}
           </div>
         </div>
+      </div>
+
+      {/* Task Edit Modal - Rendered via portal to avoid drag conflicts */}
+      {createPortal(
+        <TaskEditModal
+          task={task}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />,
+        document.body
       )}
-    </div>
+    </>
   );
 };
