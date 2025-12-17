@@ -17,6 +17,35 @@ import {
 import { SortableContext, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { TaskCard } from './TaskCard';
+import type { List } from '../store/taskStore';
+
+interface SortableListProps {
+  list: List;
+  boardId: string;
+}
+
+const SortableList: React.FC<SortableListProps> = ({ list, boardId }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: list.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <TaskList list={list} boardId={boardId} />
+    </div>
+  );
+};
 
 export const Board: React.FC = () => {
   const { t } = useTranslation();
@@ -156,28 +185,6 @@ export const Board: React.FC = () => {
 
   const activeList = board.lists.find((list) => list.id === activeListId);
 
-  const SortableList: React.FC<{ list: any }> = ({ list }) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: list.id });
-
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
-    };
-
-    return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <TaskList list={list} boardId={board.id} />
-      </div>
-    );
-  };
 
   return (
     <DndContext
@@ -216,7 +223,7 @@ export const Board: React.FC = () => {
           >
             {board.lists.map((list, index) => (
               <div key={list.id} className="animate-slide-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <SortableList list={list} />
+                <SortableList list={list} boardId={board.id} />
               </div>
             ))}
           </SortableContext>

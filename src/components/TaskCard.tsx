@@ -234,7 +234,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
       {/* Task Edit Modal - Rendered via portal to avoid drag conflicts */}
       {createPortal(
         <TaskEditModal
-          task={task}
+          taskId={task.id}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         />,

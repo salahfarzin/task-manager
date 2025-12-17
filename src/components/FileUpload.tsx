@@ -38,7 +38,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ taskId, onClose }) => {
   });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
           {t('task.addAttachment')}

@@ -8,32 +8,42 @@ import { RichTextEditor } from './RichTextEditor';
 import { FileUpload } from './FileUpload';
 
 interface TaskEditModalProps {
-  task: Task;
+  taskId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, isOpen, onClose }) => {
+export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, onClose }) => {
   const { t } = useTranslation();
-  const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description);
+  
+  // Get task directly from store - this ensures modal gets fresh data without re-mounting
+  const { boards, updateTask, deleteTask, removeAttachment } = useTaskStore();
+  const task = boards
+    .flatMap(board => board.lists)
+    .flatMap(list => list.tasks)
+    .find(t => t.id === taskId);
+
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [newTag, setNewTag] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
-  const [dueDate, setDueDate] = useState(task.dueDate ? format(task.dueDate, 'yyyy-MM-dd') : '');
+  const [dueDate, setDueDate] = useState('');
 
-  const { updateTask, deleteTask, removeAttachment } = useTaskStore();
-
-  // Sync state when task changes
+  // Sync state when modal opens or task changes
   useEffect(() => {
-    setTitle(task.title);
-    setDescription(task.description);
-    setDueDate(task.dueDate ? format(task.dueDate, 'yyyy-MM-dd') : '');
-  }, [task]);
+    if (task && isOpen) {
+      setTitle(task.title);
+      setDescription(task.description);
+      setDueDate(task.dueDate ? format(task.dueDate, 'yyyy-MM-dd') : '');
+      setShowFileUpload(false);
+    }
+  }, [taskId, isOpen]);
 
   // Handle escape key to close modal
+  // Don't close on Escape when file upload is active (file dialogs emit Escape when closed)
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !showFileUpload) {
         onClose();
       }
     };
@@ -47,9 +57,10 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, isOpen, onCl
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, showFileUpload]);
 
-  if (!isOpen) return null;
+  // Guard: if task not found or modal not open, don't render
+  if (!isOpen || !task) return null;
 
   const handleSave = () => {
     const updates: Partial<Task> = { title, description };
@@ -100,7 +111,10 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ task, isOpen, onCl
       />
 
       {/* Modal */}
-      <div className="relative glass w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl animate-scale-in">
+      <div 
+        className="relative glass w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl animate-scale-in"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
