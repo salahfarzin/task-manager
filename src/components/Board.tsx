@@ -50,13 +50,22 @@ const SortableList: React.FC<SortableListProps> = ({ list, boardId }) => {
 export const Board: React.FC = () => {
   const { t } = useTranslation();
   const { boards, currentBoardId, addList, moveTask, moveList, updateBoard } = useTaskStore();
-  const board = boards.find(b => b.id === currentBoardId) || boards[0];
+  const currentBoard = boards.find((b) => b.id === currentBoardId) || boards[0];
+
+  if (!currentBoard) {
+    return (
+      <div className="flex items-center justify-center h-full text-slate-500 font-medium">
+        {t('board.notFound')}
+      </div>
+    );
+  }
+
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeListId, setActiveListId] = useState<string | null>(null);
   const [isEditingBoardTitle, setIsEditingBoardTitle] = useState(false);
-  const [boardTitle, setBoardTitle] = useState(board?.title || '');
+  const [boardTitle, setBoardTitle] = useState(currentBoard?.title || '');
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -67,8 +76,8 @@ export const Board: React.FC = () => {
   );
 
   const handleSaveBoardTitle = () => {
-    if (board) {
-      updateBoard(board.id, { title: boardTitle });
+    if (currentBoard) {
+      updateBoard(currentBoard.id, { title: boardTitle });
     }
     setIsEditingBoardTitle(false);
   };
@@ -77,14 +86,14 @@ export const Board: React.FC = () => {
     if (e.key === 'Enter') {
       handleSaveBoardTitle();
     } else if (e.key === 'Escape') {
-      setBoardTitle(board.title);
+      setBoardTitle(currentBoard.title);
       setIsEditingBoardTitle(false);
     }
   };
 
   const handleAddList = () => {
-    if (newListTitle.trim() && board) {
-      addList(board.id, newListTitle.trim());
+    if (newListTitle.trim() && currentBoard) {
+      addList(currentBoard.id, newListTitle.trim());
       setNewListTitle('');
       setIsAddingList(false);
     }
@@ -92,7 +101,7 @@ export const Board: React.FC = () => {
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
-    const isList = board.lists.some(list => list.id === event.active.id);
+    const isList = currentBoard.lists.some(list => list.id === event.active.id);
     if (isList) {
       setActiveListId(event.active.id as string);
     }
@@ -107,17 +116,17 @@ export const Board: React.FC = () => {
     const overId = over.id as string;
 
     // Find the task and lists
-    let activeList = board.lists.find((list) =>
+    let activeList = currentBoard.lists.find((list) =>
       list.tasks.some((task) => task.id === activeId)
     );
     
-    let overList = board.lists.find((list) =>
+    let overList = currentBoard.lists.find((list) =>
       list.tasks.some((task) => task.id === overId)
     );
 
     // If over is a list, not a task
     if (!overList) {
-      overList = board.lists.find((list) => list.id === overId);
+      overList = currentBoard.lists.find((list) => list.id === overId);
     }
 
     if (!activeList || !overList) return;
@@ -147,25 +156,25 @@ export const Board: React.FC = () => {
     if (activeId === overId) return;
 
     // Handle list reordering
-    const activeList = board.lists.find(list => list.id === activeId);
+    const activeList = currentBoard.lists.find(list => list.id === activeId);
     if (activeList) {
-      const overList = board.lists.find(list => list.id === overId);
+      const overList = currentBoard.lists.find(list => list.id === overId);
       if (overList) {
-        const fromIndex = board.lists.indexOf(activeList);
-        const toIndex = board.lists.indexOf(overList);
+        const fromIndex = currentBoard.lists.indexOf(activeList);
+        const toIndex = currentBoard.lists.indexOf(overList);
         if (fromIndex !== toIndex) {
-          moveList(board.id, fromIndex, toIndex);
+          moveList(currentBoard.id, fromIndex, toIndex);
         }
       }
       return;
     }
 
     // Handle task reordering within the same list
-    const activeListForTask = board.lists.find((list) =>
+    const activeListForTask = currentBoard.lists.find((list) =>
       list.tasks.some((task) => task.id === activeId)
     );
     
-    const overListForTask = board.lists.find((list) =>
+    const overListForTask = currentBoard.lists.find((list) =>
       list.tasks.some((task) => task.id === overId)
     );
 
@@ -179,11 +188,11 @@ export const Board: React.FC = () => {
     }
   };
 
-  const activeTask = board.lists
+  const activeTask = currentBoard.lists
     .flatMap((list) => list.tasks)
     .find((task) => task.id === activeId);
 
-  const activeList = board.lists.find((list) => list.id === activeListId);
+  const activeList = currentBoard.lists.find((list) => list.id === activeListId);
 
 
   return (
@@ -211,19 +220,19 @@ export const Board: React.FC = () => {
               className="text-3xl font-bold text-slate-900 dark:text-slate-100 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 px-2 py-1 rounded-xl transition-all duration-300 hover:scale-105"
               onClick={() => setIsEditingBoardTitle(true)}
             >
-              {board.title}
+              {currentBoard.title}
             </h1>
           )}
         </div>
 
         <div className="flex items-start space-x-6 rtl:space-x-reverse overflow-x-auto custom-scrollbar pb-6">
           <SortableContext
-            items={board.lists.map((list) => list.id)}
+            items={currentBoard.lists.map((list) => list.id)}
             strategy={horizontalListSortingStrategy}
           >
-            {board.lists.map((list, index) => (
+            {currentBoard.lists.map((list, index) => (
               <div key={list.id} className="animate-slide-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <SortableList list={list} boardId={board.id} />
+                <SortableList list={list} boardId={currentBoard.id} />
               </div>
             ))}
           </SortableContext>
@@ -251,6 +260,7 @@ export const Board: React.FC = () => {
                       setNewListTitle('');
                     }}
                     className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    aria-label="Cancel"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -279,7 +289,7 @@ export const Board: React.FC = () => {
         )}
         {activeList && (
           <div className="w-80 opacity-90">
-            <TaskList list={activeList} boardId={board.id} />
+            <TaskList list={activeList} boardId={currentBoard.id} />
           </div>
         )}
       </DragOverlay>

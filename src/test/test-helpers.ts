@@ -40,9 +40,12 @@ export const createMockTask = (overrides = {}) => ({
   completed: false,
   createdAt: new Date(),
   updatedAt: new Date(),
-  dueDate: null,
+  dueDate: undefined,
   tags: [],
   attachments: [],
+  mentions: [],
+  listId: 'list-1',
+  order: 0,
   ...overrides,
 })
 

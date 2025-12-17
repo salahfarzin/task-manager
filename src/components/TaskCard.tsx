@@ -82,6 +82,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         style={style}
         {...attributes}
         {...listeners}
+        data-testid="task-card"
         className={`glass rounded-xl p-4 mb-3 card-hover animate-scale-in ${
           isDragging ? 'shadow-2xl' : 'shadow-md'
         }`}
@@ -103,6 +104,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                 onClick={handleDelete}
                 className="p-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group hover:scale-110"
                 aria-label={t('task.delete')}
+                data-testid="delete-task-button"
               >
                 <Trash2 className="w-4 h-4 text-slate-700 dark:text-slate-400 group-hover:text-red-600 transition-colors" />
               </button>
@@ -170,6 +172,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                     <button
                       onClick={() => removeAttachment(task.id, attachment.id)}
                       className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors hover:scale-110"
+                      data-testid={`delete-attachment-${attachment.id}`}
                     >
                       <X className="w-3 h-3 text-red-600" />
                     </button>
@@ -190,6 +193,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               <button
                 onClick={() => setShowFileUpload(true)}
                 className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 flex items-center space-x-1 rtl:space-x-reverse hover:scale-105 transition-transform"
+                data-testid="toggle-file-upload"
               >
                 <Paperclip className="w-4 h-4" />
                 <span>{t('task.addAttachment')}</span>
@@ -209,7 +213,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                     title={mention}
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    {mention.charAt(0).toUpperCase()}
+                    {mention.replace(/^@/, '').charAt(0).toUpperCase()}
                   </div>
                 ))}
               </div>
@@ -218,7 +222,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
           {/* Due Date */}
           {task.dueDate && (
-            <div className={`flex items-center space-x-2 rtl:space-x-reverse text-sm ${getDueDateColor()} animate-fade-in`}>
+            <div 
+              data-testid="due-date" 
+              className={`flex items-center space-x-2 rtl:space-x-reverse text-sm ${getDueDateColor()} animate-fade-in`}
+            >
               <Calendar className="w-4 h-4" />
               <span>{format(task.dueDate, 'MMM dd, yyyy')}</span>
             </div>

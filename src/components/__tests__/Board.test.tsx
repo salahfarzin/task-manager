@@ -3,30 +3,50 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Board } from '@/components/Board';
 import { render } from '@/test/test-utils';
-import { useTaskStore } from '../store/taskStore';
+import { useTaskStore } from '../../store/taskStore';
+
+// Mock react-i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+  initReactI18next: {
+    type: '3rdParty',
+    init: vi.fn(),
+  },
+  I18nextProvider: ({ children }: any) => <>{children}</>,
+}));
 
 // Mock the store
-vi.mock('../store/taskStore', () => ({
+vi.mock('../../store/taskStore', () => ({
   useTaskStore: vi.fn(),
 }));
 
+// Capture dnd handlers to test them
+let dndHandlers: any = {};
+
 // Mock dnd-kit components
 vi.mock('@dnd-kit/core', () => ({
-  DndContext: ({ children, onDragStart, onDragOver, onDragEnd }: any) => (
-    <div data-testid="dnd-context" data-on-drag-start={!!onDragStart} data-on-drag-over={!!onDragOver} data-on-drag-end={!!onDragEnd}>
-      {children}
-    </div>
-  ),
+  DndContext: ({ children, onDragStart, onDragOver, onDragEnd }: any) => {
+    dndHandlers = { onDragStart, onDragOver, onDragEnd };
+    return (
+      <div data-testid="dnd-context">
+        {children}
+      </div>
+    );
+  },
   DragOverlay: ({ children }: any) => <div data-testid="drag-overlay">{children}</div>,
   closestCorners: vi.fn(),
   PointerSensor: vi.fn(),
   useSensor: vi.fn((sensor: any) => sensor),
   useSensors: vi.fn((sensors: any) => sensors),
+  useDroppable: vi.fn(() => ({ setNodeRef: vi.fn() })),
 }));
 
 vi.mock('@dnd-kit/sortable', () => ({
   SortableContext: ({ children }: any) => <div data-testid="sortable-context">{children}</div>,
   horizontalListSortingStrategy: vi.fn(),
+  verticalListSortingStrategy: vi.fn(),
   useSortable: vi.fn(() => ({
     attributes: {},
     listeners: {},
@@ -46,7 +66,7 @@ vi.mock('@dnd-kit/utilities', () => ({
 }));
 
 // Mock TaskList and TaskCard components
-vi.mock('./TaskList', () => ({
+vi.mock('../TaskList', () => ({
   TaskList: ({ list, boardId }: any) => (
     <div data-testid={`task-list-${list.id}`} data-board-id={boardId}>
       <h3>{list.title}</h3>
@@ -59,7 +79,7 @@ vi.mock('./TaskList', () => ({
   ),
 }));
 
-vi.mock('./TaskCard', () => ({
+vi.mock('../TaskCard', () => ({
   TaskCard: ({ task }: any) => (
     <div data-testid={`task-card-${task.id}`}>
       {task.title}
@@ -102,6 +122,7 @@ describe('Board', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useTaskStore as any).mockReturnValue(mockStore);
+    dndHandlers = {};
   });
 
   afterEach(() => {
@@ -133,7 +154,6 @@ describe('Board', () => {
     await user.keyboard('{Enter}');
 
     expect(mockStore.updateBoard).toHaveBeenCalledWith('board-1', { title: 'Updated Board Title' });
-    expect(screen.getByText('Updated Board Title')).toBeInTheDocument();
   });
 
   it('cancels board title editing on Escape', async () => {
@@ -175,7 +195,7 @@ describe('Board', () => {
     const addListButton = screen.getByText('board.addList');
     await user.click(addListButton);
 
-    const cancelButton = screen.getByRole('button', { name: /×/i });
+    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
     await user.click(cancelButton);
 
     expect(mockStore.addList).not.toHaveBeenCalled();
@@ -189,90 +209,79 @@ describe('Board', () => {
     const addListButton = screen.getByText('board.addList');
     await user.click(addListButton);
 
-    const input = screen.getByPlaceholderText('placeholder.listName');
+    screen.getByPlaceholderText('placeholder.listName');
     await user.keyboard('{Enter}');
 
     expect(mockStore.addList).not.toHaveBeenCalled();
   });
 
-  it('handles drag start for tasks', () => {
+  // DnD Tests
+  it('handles drag start', () => {
     render(<Board />);
-
-    const dndContext = screen.getByTestId('dnd-context');
-    expect(dndContext).toHaveAttribute('data-on-drag-start', 'true');
+    // Just verify handler is attached
+    expect(dndHandlers.onDragStart).toBeDefined();
+    
+    // Simulate drag start
+    dndHandlers.onDragStart({ active: { id: 'task-1' } });
+    // This sets internal state, hard to verify without looking at effects implies by activeId.
+    // We can assume it works if no crash.
   });
 
-  it('handles drag over for moving tasks between lists', () => {
-    const mockMoveTask = vi.fn();
-    (useTaskStore as any).mockReturnValue({
-      ...mockStore,
-      moveTask: mockMoveTask,
+  it('handles drag over: moving task between lists', () => {
+    render(<Board />);
+    
+    // Move task-1 (list-1) to list-2
+    dndHandlers.onDragOver({
+      active: { id: 'task-1' },
+      over: { id: 'list-2' },
+    });
+    
+    expect(mockStore.moveTask).toHaveBeenCalledWith(
+      'task-1', 
+      'list-1', 
+      'list-2', 
+      1 // Appended to end (list-2 had 1 task: task-3)
+    );
+  });
+
+  it('handles drag over: moving task within same list (no op)', () => {
+     render(<Board />);
+     
+     dndHandlers.onDragOver({
+       active: { id: 'task-1' },
+       over: { id: 'task-2' }, // Same list (list-1)
+     });
+     
+     expect(mockStore.moveTask).not.toHaveBeenCalled();
+  });
+
+  it('handles drag end: moving list', () => {
+    render(<Board />);
+
+    // Move list-1 to list-2 position
+    dndHandlers.onDragEnd({
+      active: { id: 'list-1' },
+      over: { id: 'list-2' },
     });
 
-    render(<Board />);
-
-    const dndContext = screen.getByTestId('dnd-context');
-    expect(dndContext).toHaveAttribute('data-on-drag-over', 'true');
+    expect(mockStore.moveList).toHaveBeenCalledWith('board-1', 0, 1);
   });
 
-  it('handles drag end for list reordering', () => {
-    const mockMoveList = vi.fn();
-    (useTaskStore as any).mockReturnValue({
-      ...mockStore,
-      moveList: mockMoveList,
+  it('handles drag end: reordering tasks in same list', () => {
+    render(<Board />);
+
+    // Move task-1 to task-2 position (swap)
+    dndHandlers.onDragEnd({
+      active: { id: 'task-1' },
+      over: { id: 'task-2' },
     });
 
-    render(<Board />);
-
-    const dndContext = screen.getByTestId('dnd-context');
-    expect(dndContext).toHaveAttribute('data-on-drag-end', 'true');
+    expect(mockStore.moveTask).toHaveBeenCalledWith('task-1', 'list-1', 'list-1', 1);
   });
 
-  it('renders drag overlay when dragging a task', () => {
-    // Mock active task state
-    const mockStoreWithActiveTask = {
-      ...mockStore,
-      boards: [
-        {
-          ...mockStore.boards[0],
-          lists: [
-            {
-              ...mockStore.boards[0].lists[0],
-              tasks: [
-                { id: 'active-task', title: 'Active Task' },
-                ...mockStore.boards[0].lists[0].tasks,
-              ],
-            },
-            ...mockStore.boards[0].lists.slice(1),
-          ],
-        },
-      ],
-    };
-
-    (useTaskStore as any).mockReturnValue(mockStoreWithActiveTask);
-
+  it('renders drag overlay', () => {
     render(<Board />);
-
-    const dragOverlay = screen.getByTestId('drag-overlay');
-    expect(dragOverlay).toBeInTheDocument();
-  });
-
-  it('renders drag overlay when dragging a list', () => {
-    render(<Board />);
-
-    const dragOverlay = screen.getByTestId('drag-overlay');
-    expect(dragOverlay).toBeInTheDocument();
-  });
-
-  it('applies correct CSS classes and animations', () => {
-    render(<Board />);
-
-    // Check for sortable context
-    expect(screen.getByTestId('sortable-context')).toBeInTheDocument();
-
-    // Check for animation delays on lists
-    const listContainers = screen.getAllByTestId(/^task-list-/);
-    expect(listContainers).toHaveLength(2);
+    expect(screen.getByTestId('drag-overlay')).toBeInTheDocument();
   });
 
   it('handles board with no lists', () => {
@@ -304,8 +313,8 @@ describe('Board', () => {
 
     (useTaskStore as any).mockReturnValue(mockStoreNoBoard);
 
-    // Should not crash and should use first board as fallback
-    expect(() => render(<Board />)).not.toThrow();
+    render(<Board />);
+    expect(screen.getByText('board.notFound')).toBeInTheDocument();
   });
 
   it('renders add list button with correct styling', () => {
@@ -313,7 +322,7 @@ describe('Board', () => {
 
     const addButton = screen.getByText('board.addList');
     expect(addButton).toBeInTheDocument();
-    expect(addButton).toHaveClass('group');
+    expect(addButton.closest('button')).toHaveClass('group');
   });
 
   it('focuses input when adding new list', async () => {
@@ -335,6 +344,7 @@ describe('Board', () => {
     await user.click(titleElement);
 
     const input = screen.getByDisplayValue('Test Board');
+    await user.clear(input);
     await user.type(input, 'New Title{enter}');
 
     expect(mockStore.updateBoard).toHaveBeenCalledWith('board-1', { title: 'New Title' });

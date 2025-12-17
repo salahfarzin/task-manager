@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Save, Calendar, Tag, Paperclip, User, Trash2 } from 'lucide-react';
+import { X, Save, Calendar, Paperclip, User, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Task } from '../store/taskStore';
 import { useTaskStore } from '../store/taskStore';
@@ -112,6 +112,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
 
       {/* Modal */}
       <div 
+        data-testid="task-edit-modal"
         className="relative glass w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -140,6 +141,32 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)] custom-scrollbar space-y-6">
+          {/* Tags - Moved to Top */}
+          <div>
+            {task.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {task.tags.map((tag, index) => (
+                  <span
+                    key={tag}
+                    className={`tag ${getTagColor(index)} group cursor-pointer hover:scale-105 transition-transform`}
+                    onClick={() => handleRemoveTag(tag)}
+                  >
+                    {tag}
+                    <X className="w-3 h-3 inline-block ltr:ml-1 rtl:mr-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </span>
+                ))}
+              </div>
+            )}
+            <input
+              type="text"
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              onKeyDown={handleAddTag}
+              placeholder={t('task.addTag')} // Or maybe just "Add Tag..." since label is gone
+              className="input-base mb-4"
+            />
+          </div>
+
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -183,42 +210,10 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
             />
           </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              <Tag className="w-4 h-4 inline-block ltr:mr-2 rtl:ml-2" />
-              {t('task.tags')}
-            </label>
-            {task.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {task.tags.map((tag, index) => (
-                  <span
-                    key={tag}
-                    className={`tag ${getTagColor(index)} group cursor-pointer hover:scale-105 transition-transform`}
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    {tag}
-                    <X className="w-3 h-3 inline-block ltr:ml-1 rtl:mr-1 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </span>
-                ))}
-              </div>
-            )}
-            <input
-              type="text"
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              onKeyDown={handleAddTag}
-              placeholder={t('task.addTag')}
-              className="input-base"
-            />
-          </div>
+
 
           {/* Attachments */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-              <Paperclip className="w-4 h-4 inline-block ltr:mr-2 rtl:ml-2" />
-              {t('task.attachments')}
-            </label>
             {task.attachments.length > 0 && (
               <div className="space-y-2 mb-3">
                 {task.attachments.map((attachment) => (
@@ -236,6 +231,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
                     <button
                       onClick={() => removeAttachment(task.id, attachment.id)}
                       className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                      data-testid={`modal-delete-attachment-${attachment.id}`}
                     >
                       <X className="w-4 h-4 text-red-600" />
                     </button>
@@ -248,6 +244,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
             ) : (
               <button
                 onClick={() => setShowFileUpload(true)}
+                data-testid="modal-add-attachment"
                 className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 flex items-center space-x-2 rtl:space-x-reverse hover:scale-105 transition-transform"
               >
                 <Paperclip className="w-4 h-4" />
