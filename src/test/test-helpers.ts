@@ -56,6 +56,7 @@ export const createMockList = (overrides = {}) => ({
   title: 'Test List',
   tasks: [],
   createdAt: new Date(),
+  order: 0,
   ...overrides,
 })
 

@@ -15,7 +15,7 @@ vi.mock('react-i18next', () => ({
   I18nextProvider: ({ children }: any) => children,
 }))
 
-import { render, screen, fireEvent, waitFor } from '../../test/test-utils'
+import { render, screen, fireEvent } from '../../test/test-utils'
 import { BoardSelector } from '../BoardSelector'
 import { createMockBoard } from '../../test/test-helpers'
 

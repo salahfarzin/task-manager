@@ -43,6 +43,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
       setAssignee(task.assignee || '');
       setShowFileUpload(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId, isOpen]);
 
   // Handle escape key to close modal

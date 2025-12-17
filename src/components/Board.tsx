@@ -52,13 +52,7 @@ export const Board: React.FC = () => {
   const { boards, currentBoardId, addList, moveTask, moveList, updateBoard } = useTaskStore();
   const currentBoard = boards.find((b) => b.id === currentBoardId) || boards[0];
 
-  if (!currentBoard) {
-    return (
-      <div className="flex items-center justify-center h-full text-slate-500 font-medium">
-        {t('board.notFound')}
-      </div>
-    );
-  }
+
 
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
@@ -116,7 +110,7 @@ export const Board: React.FC = () => {
     const overId = over.id as string;
 
     // Find the task and lists
-    let activeList = currentBoard.lists.find((list) =>
+    const activeList = currentBoard.lists.find((list) =>
       list.tasks.some((task) => task.id === activeId)
     );
     
@@ -188,12 +182,22 @@ export const Board: React.FC = () => {
     }
   };
 
+
+
+
+  if (!currentBoard) {
+    return (
+      <div className="flex items-center justify-center h-full text-slate-500 font-medium">
+        {t('board.notFound')}
+      </div>
+    );
+  }
+
   const activeTask = currentBoard.lists
     .flatMap((list) => list.tasks)
     .find((task) => task.id === activeId);
 
   const activeList = currentBoard.lists.find((list) => list.id === activeListId);
-
 
   return (
     <DndContext

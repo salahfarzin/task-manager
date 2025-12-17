@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.77% </span>
+                <span class="strong">75.4% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>45/61</span>
+                <span class='fraction'>46/61</span>
             </div>
         
             
@@ -361,7 +361,11 @@
 <a name='L296'></a><a href='#L296'>296</a>
 <a name='L297'></a><a href='#L297'>297</a>
 <a name='L298'></a><a href='#L298'>298</a>
-<a name='L299'></a><a href='#L299'>299</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L299'></a><a href='#L299'>299</a>
+<a name='L300'></a><a href='#L300'>300</a>
+<a name='L301'></a><a href='#L301'>301</a>
+<a name='L302'></a><a href='#L302'>302</a>
+<a name='L303'></a><a href='#L303'>303</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -415,20 +419,14 @@
 <span class="cline-any cline-yes">100x</span>
 <span class="cline-any cline-yes">100x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">100x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">99x</span>
-<span class="cline-any cline-yes">99x</span>
-<span class="cline-any cline-yes">99x</span>
-<span class="cline-any cline-yes">99x</span>
-<span class="cline-any cline-yes">99x</span>
-<span class="cline-any cline-yes">99x</span>
+<span class="cline-any cline-yes">100x</span>
+<span class="cline-any cline-yes">100x</span>
+<span class="cline-any cline-yes">100x</span>
+<span class="cline-any cline-yes">100x</span>
+<span class="cline-any cline-yes">100x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">100x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -551,14 +549,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">100x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">99x</span>
 <span class="cline-any cline-yes">196x</span>
 <span class="cline-any cline-yes">294x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">196x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">100x</span>
+<span class="cline-any cline-yes">99x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -713,20 +721,14 @@ export const Board: React.FC = () =&gt; {
   const { boards, currentBoardId, addList, moveTask, moveList, updateBoard } = useTaskStore();
   const currentBoard = boards.find((b) =&gt; b.id === currentBoardId) || boards[0];
 &nbsp;
-  if (!currentBoard) {
-    return (
-      &lt;div className="flex items-center justify-center h-full text-slate-500 font-medium"&gt;
-        {t('board.notFound')}
-      &lt;/div&gt;
-    );
-  }
+&nbsp;
 &nbsp;
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
   const [activeId, setActiveId] = useState&lt;string | null&gt;(null);
   const [activeListId, setActiveListId] = useState&lt;string | null&gt;(null);
   const [isEditingBoardTitle, setIsEditingBoardTitle] = useState(false);
-  const [boardTitle, setBoardTitle] = useState(currentBoard?.title || <span class="branch-1 cbranch-no" title="branch not covered" >'')</span>;
+  const [boardTitle, setBoardTitle] = useState(currentBoard?.title || '');
 &nbsp;
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -777,7 +779,7 @@ export const Board: React.FC = () =&gt; {
     const overId = over.id as string;
 &nbsp;
     // Find the task and lists
-    let activeList = currentBoard.lists.find((list) =&gt;
+    const activeList = currentBoard.lists.find((list) =&gt;
       list.tasks.some((task) =&gt; task.id === activeId)
     );
     
@@ -849,12 +851,22 @@ export const Board: React.FC = () =&gt; {
     }
   };
 &nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+  if (!currentBoard) {
+    return (
+      &lt;div className="flex items-center justify-center h-full text-slate-500 font-medium"&gt;
+        {t('board.notFound')}
+      &lt;/div&gt;
+    );
+  }
+&nbsp;
   const activeTask = currentBoard.lists
     .flatMap((list) =&gt; list.tasks)
     .find((task) =&gt; task.id === activeId);
 &nbsp;
   const activeList = currentBoard.lists.find((list) =&gt; list.id === activeListId);
-&nbsp;
 &nbsp;
   return (
     &lt;DndContext
@@ -964,7 +976,7 @@ export const Board: React.FC = () =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-17T22:43:10.680Z
+                at 2025-12-17T22:56:44.509Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

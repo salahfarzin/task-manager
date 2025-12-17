@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '../../test/test-utils'
+import { render, screen, fireEvent } from '../../test/test-utils'
 import { RichTextEditor } from '../RichTextEditor'
 import { vi } from 'vitest'
 
@@ -31,7 +31,7 @@ const mockChain = vi.fn(() => ({
 
 const mockEditor = {
   chain: mockChain,
-  isActive: vi.fn((type: string) => false),
+  isActive: vi.fn((_type: string) => false),
   getHTML: vi.fn(() => '<p>test content</p>'),
   setContent: vi.fn(),
 }
@@ -267,7 +267,7 @@ describe('RichTextEditor', () => {
 
   it('should handle editor initialization failure', () => {
     // Mock useEditor to return null (editor failed to initialize)
-    useEditor.mockReturnValueOnce(null)
+    useEditor.mockReturnValueOnce(null as any)
 
     const { container } = render(<RichTextEditor {...defaultProps} />)
 

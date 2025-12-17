@@ -1,4 +1,4 @@
-import { render as rtlRender, screen, fireEvent, waitFor } from '../../test/test-utils'
+import { screen, fireEvent, waitFor } from '../../test/test-utils'
 import { render } from '@testing-library/react'
 import { ThemeProvider, useTheme } from '../../contexts/ThemeContext'
 import { vi } from 'vitest'
