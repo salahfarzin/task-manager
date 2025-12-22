@@ -41,7 +41,7 @@ const mockStore = {
   removeAttachment: vi.fn(),
 }
 
-vi.mock('../../store/taskStore', () => ({
+vi.mock('../../store/task-store', () => ({
   useTaskStore: () => mockStore,
 }))
 

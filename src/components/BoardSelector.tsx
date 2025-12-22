@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, ChevronDown, X } from 'lucide-react';
-import { useTaskStore } from '../store/taskStore';
+import { useTaskStore } from '../store/task-store';
 
 export const BoardSelector: React.FC = () => {
   const { t } = useTranslation();
@@ -48,7 +48,7 @@ export const BoardSelector: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+        className="flex items-center space-x-2 rtl:space-x-reverse px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
       >
         <span className="font-medium text-slate-700 dark:text-slate-300">
           {currentBoard?.title || 'Select Board'}
@@ -87,7 +87,7 @@ export const BoardSelector: React.FC = () => {
 
             <div className="border-t border-slate-200 dark:border-slate-700 mt-2 pt-2">
               {isAddingBoard ? (
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 rtl:space-x-reverse">
                   <input
                     type="text"
                     value={newBoardTitle}
@@ -114,7 +114,7 @@ export const BoardSelector: React.FC = () => {
               ) : (
                 <button
                   onClick={() => setIsAddingBoard(true)}
-                  className="flex items-center space-x-2 w-full p-3 text-left text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
+                  className="flex items-center space-x-2 rtl:space-x-reverse w-full p-3 text-start text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
                 >
                   <Plus className="w-4 h-4" />
                   <span>{t('board.new')}</span>

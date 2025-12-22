@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Board } from '@/components/Board';
 import { render } from '@/test/test-utils';
-import { useTaskStore } from '../../store/taskStore';
+import { useTaskStore } from '../../store/task-store';
 
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
@@ -18,7 +18,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 // Mock the store
-vi.mock('../../store/taskStore', () => ({
+vi.mock('../../store/task-store', () => ({
   useTaskStore: vi.fn(),
 }));
 

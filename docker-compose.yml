@@ -1,0 +1,12 @@
+services:
+  task-manager:
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+      args:
+        - VITE_APP_BASE_PATH=${VITE_APP_BASE_PATH:-/}
+        - VITE_API_URL=${VITE_API_URL:-https://psychometrist.local/v1}
+    ports:
+      - "${APP_PORT:-8080}:80"
+    restart: unless-stopped
+    container_name: task-manager-app

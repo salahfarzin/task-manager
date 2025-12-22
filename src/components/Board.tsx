@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, X } from 'lucide-react';
-import { useTaskStore } from '../store/taskStore';
+import { useTaskStore } from '../store/task-store';
 import { TaskList } from './TaskList';
 import {
   DndContext,
@@ -17,7 +17,7 @@ import {
 import { SortableContext, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { TaskCard } from './TaskCard';
-import type { List } from '../store/taskStore';
+import type { List } from '../store/task-store';
 
 interface SortableListProps {
   list: List;
@@ -229,7 +229,7 @@ export const Board: React.FC = () => {
           )}
         </div>
 
-        <div className="flex items-start space-x-6 rtl:space-x-reverse overflow-x-auto custom-scrollbar pb-6">
+        <div className="flex items-start gap-6 overflow-x-auto custom-scrollbar pb-6 px-1">
           <SortableContext
             items={currentBoard.lists.map((list) => list.id)}
             strategy={horizontalListSortingStrategy}
@@ -254,7 +254,7 @@ export const Board: React.FC = () => {
                   className="input-base"
                   autoFocus
                 />
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <div className="flex items-center gap-2">
                   <button onClick={handleAddList} className="btn-primary">
                     {t('action.create')}
                   </button>
@@ -273,7 +273,7 @@ export const Board: React.FC = () => {
             ) : (
               <button
                 onClick={() => setIsAddingList(true)}
-                className="w-full glass rounded-lg p-4 shadow-lg flex items-center justify-center space-x-2 rtl:space-x-reverse hover:bg-primary-50 dark:hover:bg-primary-900/10 hover:border-primary-400 dark:hover:border-primary-600 border-2 border-dashed border-slate-300 dark:border-slate-600 transition-all duration-200 group"
+                className="w-full glass rounded-lg p-4 shadow-lg flex items-center justify-center gap-2 hover:bg-primary-50 dark:hover:bg-primary-900/10 hover:border-primary-400 dark:hover:border-primary-600 border-2 border-dashed border-slate-300 dark:border-slate-600 transition-all duration-200 group"
               >
                 <Plus className="w-6 h-6 text-slate-700 dark:text-slate-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:scale-110 transition-all" />
                 <span className="font-semibold text-slate-700 dark:text-slate-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">

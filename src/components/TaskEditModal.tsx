@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Save, Calendar, Paperclip, User, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
-import type { Task } from '../store/taskStore';
-import { useTaskStore } from '../store/taskStore';
+import type { Task } from '../store/task-store';
+import { useTaskStore } from '../store/task-store';
 import { RichTextEditor } from './RichTextEditor';
 import { FileUpload } from './FileUpload';
 

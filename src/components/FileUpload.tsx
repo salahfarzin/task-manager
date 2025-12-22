@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useTaskStore } from '../store/taskStore';
+import { useTaskStore } from '../store/task-store';
 
 interface FileUploadProps {
   taskId: string;

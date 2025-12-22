@@ -1,16 +1,69 @@
 <!doctype html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Modern task management application with drag-and-drop, rich text editing, and team collaboration features" />
-    <meta name="keywords" content="task manager, kanban, project management, team collaboration" />
-    <meta name="author" content="Task Manager" />
-    <title>Task Manager - Modern Project Management</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Modern task management application with drag-and-drop, rich text editing, and team collaboration features" />
+  <meta name="keywords" content="task manager, kanban, project management, team collaboration" />
+  <meta name="author" content="Task Manager" />
+
+  <!-- Preconnect to font providers for faster loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+
+  <!-- Preload critical fonts to prevent FOUT -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css"
+    as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+  </noscript>
+
+  <title>Task Manager - Modern Project Management</title>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- Inline script to preload fonts before app renders -->
+  <script>
+    // Use CSS Font Loading API to ensure fonts are loaded
+    if ('fonts' in document) {
+      Promise.all([
+        document.fonts.load('400 1em Inter'),
+        document.fonts.load('500 1em Inter'),
+        document.fonts.load('600 1em Inter'),
+        document.fonts.load('normal 1em Vazirmatn'),
+        document.fonts.load('500 1em Vazirmatn'),
+        document.fonts.load('bold 1em Vazirmatn')
+      ]).then(() => {
+        document.documentElement.classList.add('fonts-loaded');
+      }).catch(err => {
+        console.warn('Font loading failed:', err);
+        // Continue anyway - fallback fonts will be used
+        document.documentElement.classList.add('fonts-loaded');
+      });
+
+      // Fallback timeout - don't wait forever
+      setTimeout(() => {
+        if (!document.documentElement.classList.contains('fonts-loaded')) {
+          document.documentElement.classList.add('fonts-loaded');
+        }
+      }, 3000);
+    } else {
+      // Browser doesn't support Font Loading API, continue normally
+      document.documentElement.classList.add('fonts-loaded');
+    }
+  </script>
+
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
