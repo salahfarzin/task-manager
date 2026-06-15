@@ -62,6 +62,8 @@ export interface Task {
     acceptanceCriteria?: string;
     branchName?: string;
     changedFiles?: string[];
+    qaFeedback?: string;
+    poFeedback?: string;
 }
 
 export interface List {
@@ -502,6 +504,8 @@ export const useTaskStore = create<TaskStore>((set) => ({
                 acceptanceCriteria: undefined,
                 branchName: undefined,
                 changedFiles: undefined,
+                qaFeedback: undefined,
+                poFeedback: undefined,
                 updatedAt: new Date(),
             };
 

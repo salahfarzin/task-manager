@@ -72,6 +72,8 @@
     "working": "dixebite…",
     "changedFiles": "Pelikan guherand",
     "agentLog": "Têkevtina Ajentê",
+    "pipelineResults": "Encamên pipeline ya AI",
+    "pipelineInProgress": "Pipeline dixebite — encam dê li vir xuya bibin.",
     "status": {
       "idle": "Bêkar",
       "queued": "Di Rêzê de",

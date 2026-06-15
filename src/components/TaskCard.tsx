@@ -118,6 +118,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         if (data.changed_files?.length) {
           updates.changedFiles = data.changed_files;
         }
+        if (data.qa_feedback) {
+          updates.qaFeedback = data.qa_feedback;
+        }
+        if (data.po_feedback) {
+          updates.poFeedback = data.po_feedback;
+        }
 
         // Auto-assign to the agent currently handling the task
         const activeAgent = STATUS_TO_AGENT[data.status as AiStatus];

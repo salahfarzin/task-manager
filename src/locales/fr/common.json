@@ -72,6 +72,8 @@
     "working": "en cours...",
     "changedFiles": "Fichiers modifiés",
     "agentLog": "Journal de l'agent",
+    "pipelineResults": "Résultats du pipeline IA",
+    "pipelineInProgress": "Le pipeline est en cours — les résultats apparaîtront ici au fur et à mesure.",
     "status": {
       "idle": "Inactif",
       "queued": "En attente",

@@ -81,6 +81,8 @@
   "ai": {
     "sendToAI": "Send to AI",
     "agentLog": "Agent Log",
+    "pipelineResults": "AI Pipeline Results",
+    "pipelineInProgress": "Pipeline is running — results will appear here as agents complete.",
     "enrichedTitle": "AI-enriched title",
     "acceptanceCriteria": "Acceptance criteria",
     "working": "working…",

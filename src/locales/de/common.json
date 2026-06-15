@@ -72,6 +72,8 @@
     "working": "arbeitet...",
     "changedFiles": "Geänderte Dateien",
     "agentLog": "Agenten-Protokoll",
+    "pipelineResults": "KI-Pipeline-Ergebnisse",
+    "pipelineInProgress": "Pipeline läuft — Ergebnisse erscheinen hier, sobald Agenten fertig sind.",
     "status": {
       "idle": "Inaktiv",
       "queued": "In der Warteschlange",

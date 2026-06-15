@@ -102,3 +102,5 @@ class StatusResponse(BaseModel):
     enriched_description: Optional[str] = None
     acceptance_criteria: Optional[str] = None
     changed_files: list[str] = Field(default_factory=list)
+    qa_feedback: Optional[str] = None
+    po_feedback: Optional[str] = None
