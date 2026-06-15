@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Edit, Trash2, Paperclip, Tag, X, Calendar, User, Clock, Bot } from 'lucide-react';
 import { format, isPast, isToday, isTomorrow } from 'date-fns';
-import type { Task, AiStatus } from '../store/task-store';
+import type { Task, AgentLogEntry, AgentRole, AiStatus } from '../store/task-store';
 import { useTaskStore } from '../store/task-store';
+import { CONFIGS } from '../config';
 import { FileUpload } from './FileUpload';
 import { TaskEditModal } from './TaskEditModal';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+const ACTIVE_AI_STATUSES = new Set<AiStatus>([
+  'queued',
+  'enriching',
+  'implementing',
+  'qa_review',
+  'po_review',
+]);
 
 interface TaskCardProps {
   task: Task;
@@ -56,9 +65,53 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     }
   };
 
-  const handleSendToAI = (e: React.MouseEvent) => {
+  useEffect(() => {
+    if (!task.aiStatus || !ACTIVE_AI_STATUSES.has(task.aiStatus)) {
+      return;
+    }
+
+    const intervalId = setInterval(async () => {
+      try {
+        const res = await fetch(`${CONFIGS.AGENT_URL}/api/tasks/${task.id}/status`);
+        if (!res.ok) {
+          return;
+        }
+        const data = await res.json();
+        const log: AgentLogEntry[] = (data.log ?? []).map(
+          (entry: { agent: AgentRole; status: string; message: string }, idx: number) => ({
+            id: `${task.id}-log-${idx}`,
+            timestamp: new Date(),
+            agent: entry.agent,
+            status: entry.status as AgentLogEntry['status'],
+            message: entry.message,
+          }),
+        );
+        updateTask(task.id, { aiStatus: data.status, aiAgentLog: log });
+      } catch {
+        // ignore transient network errors during polling
+      }
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [task.aiStatus, task.id, updateTask]);
+
+  const handleSendToAI = async (e: React.MouseEvent) => {
     e.stopPropagation();
     queueTaskForAI(task.id);
+    try {
+      await fetch(`${CONFIGS.AGENT_URL}/api/tasks/${task.id}/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          task_id: task.id,
+          title: task.title,
+          description: task.description,
+          tags: task.tags,
+        }),
+      });
+    } catch {
+      // agent service may not be running; task stays queued in the UI
+    }
   };
 
   const getAiStatusStyle = (status: AiStatus): string => {

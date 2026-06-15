@@ -6,7 +6,23 @@ services:
       args:
         - VITE_APP_BASE_PATH=${VITE_APP_BASE_PATH:-/}
         - VITE_API_URL=${VITE_API_URL:-https://psychometrist.local/v1}
+        - VITE_AGENT_URL=${VITE_AGENT_URL:-http://agent:8000}
     ports:
       - "${APP_PORT:-8080}:80"
     restart: unless-stopped
     container_name: task-manager-app
+    depends_on:
+      - agent
+
+  agent:
+    build:
+      context: ./agent
+      dockerfile: Dockerfile
+    ports:
+      - "${AGENT_PORT:-8000}:8000"
+    restart: unless-stopped
+    container_name: task-manager-agent
+    env_file:
+      - ./agent/.env
+    volumes:
+      - ${REPO_PATH:-.}:/repo
