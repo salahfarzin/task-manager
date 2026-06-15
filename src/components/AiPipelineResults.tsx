@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
 import { Bot, Sparkles, Code2, ShieldCheck, Briefcase, CheckCircle, XCircle, GitBranch, FileCode, ClipboardList } from 'lucide-react';
 import type { Task } from '../store/task-store';
 
@@ -63,9 +64,13 @@ export const AiPipelineResults: React.FC<AiPipelineResultsProps> = ({ task }) =>
                 </div>
               )}
               {task.enrichedDescription && (
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">{t('task.description')}</p>
-                  <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{task.enrichedDescription.replace(/<[^>]+>/g, '')}</p>
+                <div className="prose prose-sm dark:prose-invert max-w-none mt-1
+                  prose-headings:text-indigo-700 dark:prose-headings:text-indigo-300
+                  prose-headings:text-sm prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-1
+                  prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:my-0.5
+                  prose-li:text-slate-700 dark:prose-li:text-slate-300 prose-li:my-0
+                  prose-ul:my-1 prose-strong:text-slate-800 dark:prose-strong:text-slate-200">
+                  <ReactMarkdown>{task.enrichedDescription}</ReactMarkdown>
                 </div>
               )}
             </div>

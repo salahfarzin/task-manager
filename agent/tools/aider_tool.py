@@ -26,7 +26,8 @@ class AiderTool(BaseTool):
     repo_path: str = ""
 
     def _run(self, instruction: str, branch_name: str = "") -> str:
-        cwd = _worktree_path(branch_name) if branch_name else (self.repo_path or settings.repo_path)
+        repo = self.repo_path or settings.repo_path
+        cwd = _worktree_path(repo, branch_name) if branch_name else repo
         result = subprocess.run(
             [
                 settings.aider_path,
