@@ -26,10 +26,8 @@ export const RepoPathInput: React.FC<RepoPathInputProps> = ({
             try {
                 // @ts-expect-error – showDirectoryPicker not yet in all TS libs
                 const handle = await window.showDirectoryPicker({ mode: 'read' });
-                // API returns only the folder name, not the full path; prefill if empty
-                if (!value) {
-                    onChange('/' + handle.name);
-                }
+                // Browsers only expose the folder name, not the full path
+                onChange('/' + handle.name);
                 return;
             } catch {
                 // user cancelled or permission denied – fall through to input fallback
@@ -41,10 +39,9 @@ export const RepoPathInput: React.FC<RepoPathInputProps> = ({
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files && files.length > 0) {
+            // webkitRelativePath is "folderName/file" — extract the root folder name
             const topFolder = files[0].webkitRelativePath.split('/')[0];
-            if (!value) {
-                onChange('/' + topFolder);
-            }
+            onChange('/' + topFolder);
         }
         e.target.value = '';
     };
