@@ -39,19 +39,17 @@ class PipelineFlow(Flow[PipelineState]):
         if candidate and os.path.isdir(os.path.join(candidate, ".git")):
             return candidate
         if candidate:
-            logger.warning(
-                "[%s] repo_path '%s' is not a git repo — falling back to settings.repo_path '%s'",
-                self.state.task_id,
-                candidate,
-                settings.repo_path,
+            raise ValueError(
+                f"repo_path '{candidate}' is not a valid git repository. "
+                "Set the correct absolute path in Board Settings → Repository Path."
             )
         return settings.repo_path
 
     def _branch_name(self) -> str:
-        """Generate a deterministic branch name: feat/{task_id}_{title_slug}."""
+        """Generate a deterministic branch name: feat/{task_id}-{title_slug}."""
         title = self.state.enriched_title or self.state.title
-        slug = re.sub(r'[^a-z0-9]+', '_', title.lower()).strip('_')[:40]
-        return f"feat/{self.state.task_id}_{slug}"
+        slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:40]
+        return f"feat/{self.state.task_id}-{slug}"
 
     def _get_changed_files(self, branch_name: str) -> list[str]:
         """Return files modified by the developer.
