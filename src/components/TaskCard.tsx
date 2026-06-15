@@ -221,7 +221,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               {task.title}
             </h3>
             <div className="flex items-center space-x-1 rtl:space-x-reverse">
-              {(!task.aiStatus || task.aiStatus === 'idle') && (
+              {(!task.aiStatus || task.aiStatus === 'idle' || task.aiStatus === 'approved' || task.aiStatus === 'rejected') && (
                 <button
                   onClick={handleSendToAI}
                   className="p-1.5 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200 group hover:scale-110"

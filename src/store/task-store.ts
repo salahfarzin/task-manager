@@ -495,7 +495,13 @@ export const useTaskStore = create<TaskStore>((set) => ({
                 listId: aiQueueList.id,
                 order: aiQueueList.tasks.length,
                 aiStatus: 'queued',
-                aiAgentLog: [...(sourceTask.aiAgentLog ?? []), logEntry],
+                // Clear previous pipeline results so stale data doesn't linger
+                aiAgentLog: [logEntry],
+                enrichedTitle: undefined,
+                enrichedDescription: undefined,
+                acceptanceCriteria: undefined,
+                branchName: undefined,
+                changedFiles: undefined,
                 updatedAt: new Date(),
             };
 
