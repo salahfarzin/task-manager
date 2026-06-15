@@ -20,12 +20,13 @@ _TERMINAL_STATUSES = {AiStatus.approved, AiStatus.rejected}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    configure_logging(debug=settings.log_debug)
+    configure_logging(log_dir=settings.log_path, log_level=settings.log_level)
     logger.info(
-        "Agent service ready on %s:%d (log_debug=%s)",
+        "Agent service ready on %s:%d (log_level=%s, log_path=%s)",
         settings.agent_host,
         settings.agent_port,
-        settings.log_debug,
+        settings.log_level,
+        settings.log_path,
     )
     yield
 

@@ -21,7 +21,8 @@ class Settings(BaseSettings):
     max_implement_retries: int = 3
 
     # Logging
-    log_debug: bool = False  # Set LOG_DEBUG=true in .env to enable DEBUG-level file logs
+    log_path: str = "storage/logs"  # Relative to agent/ or absolute
+    log_level: str = "INFO"         # DEBUG | INFO | WARNING | ERROR
 
 
 settings = Settings()
