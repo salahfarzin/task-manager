@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Gestionnaire de tâches",
+    "boards": "Tableaux",
+    "myTasks": "Mes tâches"
+  },
+  "board": {
+    "addList": "Ajouter une liste",
+    "listTitle": "Titre de la liste",
+    "addCard": "Ajouter une carte",
+    "deleteList": "Supprimer la liste",
+    "new": {
+      "label": "Nouveau tableau",
+      "placeholder": "Nom du tableau..."
+    },
+    "select": "Sélectionner un tableau",
+    "notFound": "Tableau introuvable"
+  },
+  "task": {
+    "title": "Titre de la tâche",
+    "description": "Description",
+    "addDescription": "Ajouter une description plus détaillée...",
+    "tags": "Étiquettes",
+    "addTag": "Ajouter une étiquette",
+    "attachments": "Pièces jointes",
+    "addAttachment": "Ajouter une pièce jointe",
+    "mentions": "Mentions",
+    "createdAt": "Créé",
+    "estimation": "Estimation (heures)",
+    "assignee": "Assigné à",
+    "updatedAt": "Mis à jour",
+    "delete": "Supprimer la tâche",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier"
+  },
+  "action": {
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "close": "Fermer"
+  },
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "toggle": "Changer de thème"
+  },
+  "language": {
+    "english": "Anglais",
+    "persian": "Persan",
+    "toggle": "Changer de langue"
+  },
+  "placeholder": {
+    "taskTitle": "Saisir le titre de la tâche...",
+    "listName": "Saisir le nom de la liste...",
+    "searchTasks": "Rechercher des tâches...",
+    "addComment": "Ajouter un commentaire..."
+  },
+  "message": {
+    "taskCreated": "Tâche créée avec succès",
+    "taskUpdated": "Tâche mise à jour avec succès",
+    "taskDeleted": "Tâche supprimée avec succès",
+    "dragToReorder": "Faire glisser pour réorganiser"
+  },
+  "ai": {
+    "sendToAI": "Envoyer à l'IA",
+    "agentLog": "Journal de l'agent",
+    "status": {
+      "idle": "Inactif",
+      "queued": "En attente",
+      "enriching": "Enrichissement en cours",
+      "implementing": "Implémentation en cours",
+      "qa_review": "Révision QA",
+      "po_review": "Révision PO",
+      "approved": "Approuvé",
+      "rejected": "Rejeté"
+    },
+    "agent": {
+      "enricher": "Enrichisseur",
+      "spec": "Spécification",
+      "developer": "Développeur",
+      "qa": "QA",
+      "po": "PO"
+    }
+  }
+}

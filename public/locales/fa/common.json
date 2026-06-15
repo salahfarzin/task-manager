@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "مدیریت وظایف",
+    "boards": "تخته‌ها",
+    "myTasks": "وظایف من"
+  },
+  "board": {
+    "addList": "افزودن لیست",
+    "listTitle": "عنوان لیست",
+    "addCard": "افزودن کارت",
+    "deleteList": "حذف لیست",
+    "new": {
+      "label": "تخته جدید",
+      "placeholder": "نام تخته..."
+    },
+    "select": "انتخاب تخته",
+    "notFound": "تخته پیدا نشد"
+  },
+  "task": {
+    "title": "عنوان وظیفه",
+    "description": "توضیحات",
+    "addDescription": "توضیحات بیشتری اضافه کنید...",
+    "tags": "برچسب‌ها",
+    "addTag": "افزودن برچسب",
+    "attachments": "پیوست‌ها",
+    "addAttachment": "افزودن پیوست",
+    "mentions": "اشاره‌ها",
+    "createdAt": "ایجاد شده",
+    "estimation": "تخمین (ساعت)",
+    "assignee": "مسئول",
+    "updatedAt": "به‌روزرسانی شده",
+    "delete": "حذف وظیفه",
+    "save": "ذخیره",
+    "cancel": "لغو",
+    "edit": "ویرایش"
+  },
+  "action": {
+    "create": "ایجاد",
+    "update": "به‌روزرسانی",
+    "delete": "حذف",
+    "cancel": "لغو",
+    "save": "ذخیره",
+    "edit": "ویرایش",
+    "close": "بستن"
+  },
+  "theme": {
+    "light": "روشن",
+    "dark": "تیره",
+    "toggle": "تغییر تم"
+  },
+  "language": {
+    "english": "English",
+    "persian": "فارسی",
+    "toggle": "تغییر زبان"
+  },
+  "placeholder": {
+    "taskTitle": "عنوان وظیفه را وارد کنید...",
+    "listName": "نام لیست را وارد کنید...",
+    "searchTasks": "جستجوی وظایف...",
+    "addComment": "نظر اضافه کنید..."
+  },
+  "message": {
+    "taskCreated": "وظیفه با موفقیت ایجاد شد",
+    "taskUpdated": "وظیفه با موفقیت به‌روزرسانی شد",
+    "taskDeleted": "وظیفه با موفقیت حذف شد",
+    "dragToReorder": "برای مرتب‌سازی مجدد بکشید"
+  },
+  "ai": {
+    "sendToAI": "ارسال به هوش مصنوعی",
+    "agentLog": "گزارش عامل",
+    "status": {
+      "idle": "بیکار",
+      "queued": "در صف",
+      "enriching": "در حال غنی‌سازی",
+      "implementing": "در حال پیاده‌سازی",
+      "qa_review": "بررسی QA",
+      "po_review": "بررسی PO",
+      "approved": "تأیید شده",
+      "rejected": "رد شده"
+    },
+    "agent": {
+      "enricher": "غنی‌ساز",
+      "spec": "مشخصات",
+      "developer": "توسعه‌دهنده",
+      "qa": "QA",
+      "po": "PO"
+    }
+  }
+}

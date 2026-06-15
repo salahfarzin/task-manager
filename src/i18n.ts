@@ -1,182 +1,29 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-
-const resources = {
-  en: {
-    translation: {
-      // Navigation
-      'app.title': 'Task Manager',
-      'app.boards': 'Boards',
-      'app.myTasks': 'My Tasks',
-
-      // Board
-      'board.addList': 'Add List',
-      'board.listTitle': 'List Title',
-      'board.addCard': 'Add Card',
-      'board.deleteList': 'Delete List',
-      'board.new': 'New Board',
-      'board.new.placeholder': 'Board name...',
-      'board.select': 'Select Board',
-
-      // Task Card
-      'task.title': 'Task Title',
-      'task.description': 'Description',
-      'task.addDescription': 'Add a more detailed description...',
-      'task.tags': 'Tags',
-      'task.addTag': 'Add Tag',
-      'task.attachments': 'Attachments',
-      'task.addAttachment': 'Add Attachment',
-      'task.mentions': 'Mentions',
-      'task.createdAt': 'Created',
-      'task.estimation': 'Estimation (Hours)',
-      'task.assignee': 'Assignee',
-      'task.updatedAt': 'Updated',
-      'task.delete': 'Delete Task',
-      'task.save': 'Save',
-      'task.cancel': 'Cancel',
-      'task.edit': 'Edit',
-
-      // Actions
-      'action.create': 'Create',
-      'action.update': 'Update',
-      'action.delete': 'Delete',
-      'action.cancel': 'Cancel',
-      'action.save': 'Save',
-      'action.edit': 'Edit',
-      'action.close': 'Close',
-
-      // Theme
-      'theme.light': 'Light',
-      'theme.dark': 'Dark',
-      'theme.toggle': 'Toggle Theme',
-
-      // Language
-      'language.english': 'English',
-      'language.persian': 'Persian',
-      'language.toggle': 'Toggle Language',
-
-      // Placeholders
-      'placeholder.taskTitle': 'Enter task title...',
-      'placeholder.listName': 'Enter list name...',
-      'placeholder.searchTasks': 'Search tasks...',
-      'placeholder.addComment': 'Add a comment...',
-
-      // Messages
-      'message.taskCreated': 'Task created successfully',
-      'message.taskUpdated': 'Task updated successfully',
-      'message.taskDeleted': 'Task deleted successfully',
-      'message.dragToReorder': 'Drag to reorder',
-
-      // AI Agent
-      'ai.sendToAI': 'Send to AI',
-      'ai.agentLog': 'Agent Log',
-      'ai.status.idle': 'Idle',
-      'ai.status.queued': 'Queued',
-      'ai.status.enriching': 'Enriching',
-      'ai.status.implementing': 'Implementing',
-      'ai.status.qa_review': 'QA Review',
-      'ai.status.po_review': 'PO Review',
-      'ai.status.approved': 'Approved',
-      'ai.status.rejected': 'Rejected',
-      'ai.agent.enricher': 'Enricher',
-      'ai.agent.spec': 'Spec',
-      'ai.agent.developer': 'Developer',
-      'ai.agent.qa': 'QA',
-      'ai.agent.po': 'PO',
-    },
-  },
-  fa: {
-    translation: {
-      // Navigation
-      'app.title': 'مدیریت وظایف',
-      'app.boards': 'تخته‌ها',
-      'app.myTasks': 'وظایف من',
-
-      // Board
-      'board.addList': 'افزودن لیست',
-      'board.listTitle': 'عنوان لیست',
-      'board.addCard': 'افزودن کارت',
-      'board.deleteList': 'حذف لیست',
-      'board.new': 'تخته جدید',
-      'board.new.placeholder': 'نام تخته...',
-      'board.select': 'انتخاب تخته',
-
-      // Task Card
-      'task.title': 'عنوان وظیفه',
-      'task.description': 'توضیحات',
-      'task.addDescription': 'توضیحات بیشتری اضافه کنید...',
-      'task.tags': 'برچسب‌ها',
-      'task.addTag': 'افزودن برچسب',
-      'task.attachments': 'پیوست‌ها',
-      'task.addAttachment': 'افزودن پیوست',
-      'task.mentions': 'اشاره‌ها',
-      'task.createdAt': 'ایجاد شده',
-      'task.updatedAt': 'به‌روزرسانی شده',
-      'task.delete': 'حذف وظیفه',
-      'task.save': 'ذخیره',
-      'task.cancel': 'لغو',
-      'task.edit': 'ویرایش',
-
-      // Actions
-      'action.create': 'ایجاد',
-      'action.update': 'به‌روزرسانی',
-      'action.delete': 'حذف',
-      'action.cancel': 'لغو',
-      'action.save': 'ذخیره',
-      'action.edit': 'ویرایش',
-      'action.close': 'بستن',
-
-      // Theme
-      'theme.light': 'روشن',
-      'theme.dark': 'تیره',
-      'theme.toggle': 'تغییر تم',
-
-      // Language
-      'language.english': 'English',
-      'language.persian': 'فارسی',
-      'language.toggle': 'تغییر زبان',
-
-      // Placeholders
-      'placeholder.taskTitle': 'عنوان وظیفه را وارد کنید...',
-      'placeholder.listName': 'نام لیست را وارد کنید...',
-      'placeholder.searchTasks': 'جستجوی وظایف...',
-      'placeholder.addComment': 'نظر اضافه کنید...',
-
-      // Messages
-      'message.taskCreated': 'وظیفه با موفقیت ایجاد شد',
-      'message.taskUpdated': 'وظیفه با موفقیت به‌روزرسانی شد',
-      'message.taskDeleted': 'وظیفه با موفقیت حذف شد',
-      'message.dragToReorder': 'برای مرتب‌سازی مجدد بکشید',
-
-      // AI Agent
-      'ai.sendToAI': 'ارسال به هوش مصنوعی',
-      'ai.agentLog': 'گزارش عامل',
-      'ai.status.idle': 'بیکار',
-      'ai.status.queued': 'در صف',
-      'ai.status.enriching': 'در حال غنی‌سازی',
-      'ai.status.implementing': 'در حال پیاده‌سازی',
-      'ai.status.qa_review': 'بررسی QA',
-      'ai.status.po_review': 'بررسی PO',
-      'ai.status.approved': 'تأیید شده',
-      'ai.status.rejected': 'رد شده',
-      'ai.agent.enricher': 'غنی‌ساز',
-      'ai.agent.spec': 'مشخصات',
-      'ai.agent.developer': 'توسعه‌دهنده',
-      'ai.agent.qa': 'QA',
-      'ai.agent.po': 'PO',
-    },
-  },
-};
+import enCommon from '../public/locales/en/common.json';
+import faCommon from '../public/locales/fa/common.json';
+import deCommon from '../public/locales/de/common.json';
+import frCommon from '../public/locales/fr/common.json';
+import ckbCommon from '../public/locales/ckb/common.json';
+import kmrCommon from '../public/locales/kmr/common.json';
 
 i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: 'en',
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false,
-    },
-  });
+    .use(initReactI18next)
+    .init({
+        resources: {
+            en:  { common: enCommon },
+            fa:  { common: faCommon },
+            de:  { common: deCommon },
+            fr:  { common: frCommon },
+            ckb: { common: ckbCommon },
+            kmr: { common: kmrCommon },
+        },
+        lng: 'en',
+        fallbackLng: 'en',
+        defaultNS: 'common',
+        interpolation: {
+            escapeValue: false,
+        },
+    });
 
 export default i18n;

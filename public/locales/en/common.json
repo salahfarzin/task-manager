@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Task Manager",
+    "boards": "Boards",
+    "myTasks": "My Tasks"
+  },
+  "board": {
+    "addList": "Add List",
+    "listTitle": "List Title",
+    "addCard": "Add Card",
+    "deleteList": "Delete List",
+    "new": {
+      "label": "New Board",
+      "placeholder": "Board name..."
+    },
+    "select": "Select Board",
+    "notFound": "Board not found"
+  },
+  "task": {
+    "title": "Task Title",
+    "description": "Description",
+    "addDescription": "Add a more detailed description...",
+    "tags": "Tags",
+    "addTag": "Add Tag",
+    "attachments": "Attachments",
+    "addAttachment": "Add Attachment",
+    "mentions": "Mentions",
+    "createdAt": "Created",
+    "estimation": "Estimation (Hours)",
+    "assignee": "Assignee",
+    "updatedAt": "Updated",
+    "delete": "Delete Task",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit"
+  },
+  "action": {
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "close": "Close"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "toggle": "Toggle Theme"
+  },
+  "language": {
+    "english": "English",
+    "persian": "Persian",
+    "toggle": "Toggle Language"
+  },
+  "placeholder": {
+    "taskTitle": "Enter task title...",
+    "listName": "Enter list name...",
+    "searchTasks": "Search tasks...",
+    "addComment": "Add a comment..."
+  },
+  "message": {
+    "taskCreated": "Task created successfully",
+    "taskUpdated": "Task updated successfully",
+    "taskDeleted": "Task deleted successfully",
+    "dragToReorder": "Drag to reorder"
+  },
+  "ai": {
+    "sendToAI": "Send to AI",
+    "agentLog": "Agent Log",
+    "status": {
+      "idle": "Idle",
+      "queued": "Queued",
+      "enriching": "Enriching",
+      "implementing": "Implementing",
+      "qa_review": "QA Review",
+      "po_review": "PO Review",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "agent": {
+      "enricher": "Enricher",
+      "spec": "Spec",
+      "developer": "Developer",
+      "qa": "QA",
+      "po": "PO"
+    }
+  }
+}

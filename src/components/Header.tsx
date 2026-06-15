@@ -1,30 +1,55 @@
 import { Moon, Sun, Languages } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { BoardSelector } from './BoardSelector';
 import { useAuthStore } from '@/store/auth-store';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+const LANGUAGES = [
+  { code: 'en',  label: 'English',  dir: 'ltr' },
+  { code: 'fa',  label: 'فارسی',    dir: 'rtl' },
+  { code: 'de',  label: 'Deutsch',  dir: 'ltr' },
+  { code: 'fr',  label: 'Français', dir: 'ltr' },
+  { code: 'ckb', label: 'کوردی',    dir: 'rtl' },
+  { code: 'kmr', label: 'Kurdî',    dir: 'ltr' },
+] as const;
+
+type LangCode = typeof LANGUAGES[number]['code'];
+
 export const Header = () => {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuthStore();
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'fa' : 'en';
-    // Remove the current language prefix and add the new one
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const switchLanguage = (code: LangCode) => {
+    setLangOpen(false);
     const pathParts = location.pathname.split('/').filter(Boolean);
-    // If the first part is a language code, replace it
-    if (pathParts[0] === 'en' || pathParts[0] === 'fa') {
-      pathParts[0] = newLang;
+    const allCodes = LANGUAGES.map((l) => l.code) as string[];
+    if (allCodes.includes(pathParts[0])) {
+      pathParts[0] = code;
     } else {
-      pathParts.unshift(newLang);
+      pathParts.unshift(code);
     }
     navigate(`/${pathParts.join('/')}`, { replace: true });
   };
+
+  const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
   return (
     <header className="glass sticky top-0 z-50 shadow-lg animate-slide-in">
@@ -71,16 +96,42 @@ export const Header = () => {
               </div>
             )}
             
-            <button
-              onClick={toggleLanguage}
-              className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 group flex items-center gap-2 hover:scale-105 cursor-pointer"
-              aria-label={t('language.toggle')}
-            >
-              <Languages className="w-5 h-5 text-neutral-900 dark:text-slate-300 group-hover:rotate-12 transition-transform" />
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase">
-                {i18n.language === 'en' ? 'FA' : 'EN'}
-              </span>
-            </button>
+            <div className="relative" ref={langRef}>
+              <button
+                onClick={() => setLangOpen((o) => !o)}
+                className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 group flex items-center gap-2 hover:scale-105 cursor-pointer"
+                aria-label={t('language.toggle')}
+                aria-expanded={langOpen}
+              >
+                <Languages className="w-5 h-5 text-neutral-900 dark:text-slate-300 group-hover:rotate-12 transition-transform" />
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase">
+                  {currentLang.code}
+                </span>
+              </button>
+
+              {langOpen && (
+                <ul className="absolute end-0 mt-2 w-40 rounded-xl shadow-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden z-50 animate-scale-in">
+                  {LANGUAGES.map((lang) => (
+                    <li key={lang.code}>
+                      <button
+                        onClick={() => switchLanguage(lang.code)}
+                        dir={lang.dir}
+                        className={`w-full text-start px-4 py-2.5 text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-between gap-2 ${
+                          i18n.language === lang.code
+                            ? 'text-primary-600 dark:text-primary-400 font-semibold bg-primary-50 dark:bg-primary-900/20'
+                            : 'text-slate-700 dark:text-slate-300'
+                        }`}
+                      >
+                        {lang.label}
+                        {i18n.language === lang.code && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary-500 flex-shrink-0" />
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
             <button
               onClick={toggleTheme}

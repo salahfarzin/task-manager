@@ -1,0 +1,89 @@
+{
+  "app": {
+    "title": "Aufgabenverwaltung",
+    "boards": "Boards",
+    "myTasks": "Meine Aufgaben"
+  },
+  "board": {
+    "addList": "Liste hinzufügen",
+    "listTitle": "Listenname",
+    "addCard": "Karte hinzufügen",
+    "deleteList": "Liste löschen",
+    "new": {
+      "label": "Neues Board",
+      "placeholder": "Board-Name..."
+    },
+    "select": "Board auswählen",
+    "notFound": "Board nicht gefunden"
+  },
+  "task": {
+    "title": "Aufgabentitel",
+    "description": "Beschreibung",
+    "addDescription": "Füge eine ausführlichere Beschreibung hinzu...",
+    "tags": "Tags",
+    "addTag": "Tag hinzufügen",
+    "attachments": "Anhänge",
+    "addAttachment": "Anhang hinzufügen",
+    "mentions": "Erwähnungen",
+    "createdAt": "Erstellt",
+    "estimation": "Schätzung (Stunden)",
+    "assignee": "Zugewiesen an",
+    "updatedAt": "Aktualisiert",
+    "delete": "Aufgabe löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Bearbeiten"
+  },
+  "action": {
+    "create": "Erstellen",
+    "update": "Aktualisieren",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "close": "Schließen"
+  },
+  "theme": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "toggle": "Design wechseln"
+  },
+  "language": {
+    "english": "Englisch",
+    "persian": "Persisch",
+    "toggle": "Sprache wechseln"
+  },
+  "placeholder": {
+    "taskTitle": "Aufgabentitel eingeben...",
+    "listName": "Listenname eingeben...",
+    "searchTasks": "Aufgaben suchen...",
+    "addComment": "Kommentar hinzufügen..."
+  },
+  "message": {
+    "taskCreated": "Aufgabe erfolgreich erstellt",
+    "taskUpdated": "Aufgabe erfolgreich aktualisiert",
+    "taskDeleted": "Aufgabe erfolgreich gelöscht",
+    "dragToReorder": "Ziehen zum Neuordnen"
+  },
+  "ai": {
+    "sendToAI": "An KI senden",
+    "agentLog": "Agenten-Protokoll",
+    "status": {
+      "idle": "Inaktiv",
+      "queued": "In der Warteschlange",
+      "enriching": "Wird angereichert",
+      "implementing": "Wird implementiert",
+      "qa_review": "QA-Überprüfung",
+      "po_review": "PO-Überprüfung",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt"
+    },
+    "agent": {
+      "enricher": "Anreicherung",
+      "spec": "Spezifikation",
+      "developer": "Entwickler",
+      "qa": "QA",
+      "po": "PO"
+    }
+  }
+}
