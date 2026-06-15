@@ -21,11 +21,20 @@ class AgentLogEntry(BaseModel):
     message: str
 
 
+class AgentOverride(BaseModel):
+    id: str
+    name: str
+    role: str
+    goal: str
+    description: str
+
+
 class PipelineState(BaseModel):
     task_id: str
     title: str
     description: str
     tags: list[str] = Field(default_factory=list)
+    agent_configs: list[AgentOverride] = Field(default_factory=list)
 
     # Enricher output
     enriched_title: str = ""
@@ -54,11 +63,20 @@ class PipelineState(BaseModel):
     error: Optional[str] = None
 
 
+class AgentOverride(BaseModel):
+    id: str
+    name: str
+    role: str
+    goal: str
+    description: str
+
+
 class ProcessRequest(BaseModel):
     task_id: str
     title: str
     description: str
     tags: list[str] = Field(default_factory=list)
+    agent_configs: list[AgentOverride] = Field(default_factory=list)
 
 
 class StatusResponse(BaseModel):

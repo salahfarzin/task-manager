@@ -8,8 +8,9 @@ class Settings(BaseSettings):
     # OpenAI examples:    gpt-4o, gpt-4o-mini
     # Anthropic examples: anthropic/claude-sonnet-4-5, anthropic/claude-opus-4-5
     openai_api_key: str = ""
+    openai_api_base: str = ""
     anthropic_api_key: str = ""
-    llm_model: str = "anthropic/claude-sonnet-4-5"
+    llm_model: str = "openai/gpt-4o"
 
     repo_path: str = "."
     aider_path: str = "aider"

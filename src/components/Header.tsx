@@ -1,10 +1,11 @@
-import { Moon, Sun, Languages } from 'lucide-react';
+import { Moon, Sun, Languages, Bot } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
 import { BoardSelector } from './BoardSelector';
 import { useAuthStore } from '@/store/auth-store';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AgentsPanel } from './AgentsPanel';
 
 const LANGUAGES = [
   { code: 'en',  label: 'English',  dir: 'ltr' },
@@ -22,6 +23,7 @@ export const Header = () => {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuthStore();
   const [langOpen, setLangOpen] = useState(false);
+  const [agentsOpen, setAgentsOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
@@ -52,7 +54,8 @@ export const Header = () => {
   const currentLang = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
 
   return (
-    <header className="glass sticky top-0 z-50 shadow-lg animate-slide-in">
+    <>
+      <header className="glass sticky top-0 z-50 shadow-lg animate-slide-in">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 rtl:space-x-reverse animate-fade-in">
@@ -134,6 +137,14 @@ export const Header = () => {
             </div>
 
             <button
+              onClick={() => setAgentsOpen(true)}
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 group hover:scale-110 cursor-pointer"
+              aria-label={t('agents.title')}
+            >
+              <Bot className="w-5 h-5 text-neutral-900 dark:text-slate-300 group-hover:text-primary-600 transition-colors" />
+            </button>
+
+            <button
               onClick={toggleTheme}
               className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 group hover:scale-110 hover:rotate-12 cursor-pointer"
               aria-label={t('theme.toggle')}
@@ -149,5 +160,8 @@ export const Header = () => {
         </div>
       </div>
     </header>
+
+    <AgentsPanel open={agentsOpen} onClose={() => setAgentsOpen(false)} />
+  </>
   );
 };

@@ -20,12 +20,18 @@ def _log(state: PipelineState, agent: str, status: str, message: str) -> None:
 
 class PipelineFlow(Flow[PipelineState]):
 
+    def _override(self, agent_id: str) -> dict | None:
+        for cfg in self.state.agent_configs:
+            if cfg.id == agent_id:
+                return {"role": cfg.role, "goal": cfg.goal, "description": cfg.description}
+        return None
+
     @start()
     def step_enrich(self) -> None:
         _log(self.state, "enricher", "started", "Enriching task title and description")
         self.state.status = AiStatus.enriching
 
-        result = EnricherCrew().crew().kickoff(
+        result = EnricherCrew(override=self._override("enricher")).crew().kickoff(
             inputs={"title": self.state.title, "description": self.state.description}
         )
         output = result.pydantic
@@ -37,7 +43,7 @@ class PipelineFlow(Flow[PipelineState]):
     def step_spec(self) -> None:
         _log(self.state, "spec", "started", "Generating acceptance criteria and implementation plan")
 
-        result = SpecCrew().crew().kickoff(
+        result = SpecCrew(override=self._override("spec")).crew().kickoff(
             inputs={
                 "title": self.state.enriched_title,
                 "description": self.state.enriched_description,
@@ -54,7 +60,7 @@ class PipelineFlow(Flow[PipelineState]):
         _log(self.state, "developer", "started", f"Implementing (attempt {attempt})")
         self.state.status = AiStatus.implementing
 
-        result = DeveloperCrew(task_id=self.state.task_id).crew().kickoff(
+        result = DeveloperCrew(task_id=self.state.task_id, override=self._override("developer")).crew().kickoff(
             inputs={
                 "title": self.state.enriched_title,
                 "implementation_plan": self.state.implementation_plan,
@@ -97,7 +103,7 @@ class PipelineFlow(Flow[PipelineState]):
         _log(self.state, "qa", "started", "Reviewing implementation against acceptance criteria")
         self.state.status = AiStatus.qa_review
 
-        result = QACrew().crew().kickoff(
+        result = QACrew(override=self._override("qa")).crew().kickoff(
             inputs={
                 "acceptance_criteria": self.state.acceptance_criteria,
                 "branch_name": self.state.branch_name,
@@ -127,7 +133,7 @@ class PipelineFlow(Flow[PipelineState]):
         _log(self.state, "po", "started", "PO reviewing acceptance criteria compliance")
         self.state.status = AiStatus.po_review
 
-        result = POCrew().crew().kickoff(
+        result = POCrew(override=self._override("po")).crew().kickoff(
             inputs={
                 "title": self.state.enriched_title,
                 "acceptance_criteria": self.state.acceptance_criteria,

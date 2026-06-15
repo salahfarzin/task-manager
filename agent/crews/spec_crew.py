@@ -10,14 +10,20 @@ class SpecOutput(BaseModel):
 
 
 class SpecCrew:
+    def __init__(self, override: dict | None = None) -> None:
+        self._override = override or {}
+
     def crew(self) -> Crew:
         spec_writer = Agent(
-            role="Software Specification Writer",
-            goal="Generate BDD acceptance criteria and a numbered implementation plan",
-            backstory=(
-                "You are a senior software architect who writes precise BDD-style acceptance criteria "
-                "(Given/When/Then) and breaks features into small, testable implementation steps. "
-                "You never over-engineer: max 7 implementation steps."
+            role=self._override.get("role", "Software Specification Writer"),
+            goal=self._override.get("goal", "Generate BDD acceptance criteria and a numbered implementation plan"),
+            backstory=self._override.get(
+                "description",
+                (
+                    "You are a senior software architect who writes precise BDD-style acceptance criteria "
+                    "(Given/When/Then) and breaks features into small, testable implementation steps. "
+                    "You never over-engineer: max 7 implementation steps."
+                ),
             ),
             llm=settings.llm_model,
             verbose=False,

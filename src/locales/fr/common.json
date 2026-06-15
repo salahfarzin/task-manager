@@ -85,5 +85,21 @@
       "qa": "QA",
       "po": "PO"
     }
+  },
+  "agents": {
+    "title": "Agents IA",
+    "subtitle": "Configurez les agents qui traitent vos tâches dans le pipeline.",
+    "role": "Rôle / Titre",
+    "goal": "Objectif",
+    "description": "Description",
+    "enable": "Activer l'agent",
+    "disable": "Désactiver l'agent",
+    "id": {
+      "enricher": "Enrichisseur de tickets",
+      "spec": "Auteur de spec",
+      "developer": "Développeur",
+      "qa": "Ingénieur QA",
+      "po": "Product Owner"
+    }
   }
 }

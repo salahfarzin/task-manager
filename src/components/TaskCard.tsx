@@ -29,7 +29,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const [newTag, setNewTag] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
   
-  const { updateTask, deleteTask, removeAttachment, queueTaskForAI } = useTaskStore();
+  const { updateTask, deleteTask, removeAttachment, queueTaskForAI, agents } = useTaskStore();
 
   const {
     attributes,
@@ -107,6 +107,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           title: task.title,
           description: task.description,
           tags: task.tags,
+          agent_configs: agents.filter((a) => a.enabled).map((a) => ({
+            id: a.id,
+            name: a.name,
+            role: a.role,
+            goal: a.goal,
+            description: a.description,
+          })),
         }),
       });
     } catch {
@@ -337,20 +344,26 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               </div>
             )}
             
-            {task.assignee && (
-              <div 
-                data-testid="task-assignee"
-                className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-slate-600 dark:text-slate-400"
-              >
+            {task.assignee && (() => {
+              const agent = agents.find((a) => a.id === task.assignee);
+              const displayName = agent ? agent.name : task.assignee;
+              const initial = displayName.charAt(0).toUpperCase();
+              const colorClass = agent ? agent.color : 'bg-purple-500';
+              return (
                 <div 
-                  className="w-6 h-6 bg-purple-500 text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800"
-                  title={task.assignee}
+                  data-testid="task-assignee"
+                  className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-slate-600 dark:text-slate-400"
                 >
-                  {task.assignee.charAt(0).toUpperCase()}
+                  <div 
+                    className={`w-6 h-6 ${colorClass} text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800`}
+                    title={agent ? `${agent.name} — ${agent.role}` : displayName}
+                  >
+                    {initial}
+                  </div>
+                  <span>{displayName}</span>
                 </div>
-                <span>{task.assignee}</span>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* Metadata */}

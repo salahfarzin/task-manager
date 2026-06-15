@@ -10,17 +10,26 @@ class EnricherOutput(BaseModel):
 
 
 class EnricherCrew:
+    def __init__(self, override: dict | None = None) -> None:
+        self._override = override or {}
+
     def crew(self) -> Crew:
         enricher = Agent(
-            role="Technical Ticket Enricher",
-            goal=(
-                "Rewrite task titles and descriptions to be clear, actionable, "
-                "and developer-friendly using INVEST criteria"
+            role=self._override.get("role", "Technical Ticket Enricher"),
+            goal=self._override.get(
+                "goal",
+                (
+                    "Rewrite task titles and descriptions to be clear, actionable, "
+                    "and developer-friendly using INVEST criteria"
+                ),
             ),
-            backstory=(
-                "You are an experienced engineering manager who translates vague requirements "
-                "into precise, well-scoped engineering tickets. "
-                "You follow INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable)."
+            backstory=self._override.get(
+                "description",
+                (
+                    "You are an experienced engineering manager who translates vague requirements "
+                    "into precise, well-scoped engineering tickets. "
+                    "You follow INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable)."
+                ),
             ),
             llm=settings.llm_model,
             verbose=False,

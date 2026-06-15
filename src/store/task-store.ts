@@ -13,6 +13,16 @@ export type AiStatus =
 
 export type AgentRole = 'enricher' | 'spec' | 'developer' | 'qa' | 'po';
 
+export interface AgentConfig {
+    id: AgentRole;
+    name: string;
+    role: string;
+    description: string;
+    goal: string;
+    enabled: boolean;
+    color: string; // tailwind bg color class
+}
+
 export interface AgentLogEntry {
     id: string;
     timestamp: Date;
@@ -82,6 +92,9 @@ interface TaskStore {
     addAttachment: (taskId: string, attachment: Omit<Attachment, 'id' | 'uploadedAt'>) => void;
     removeAttachment: (taskId: string, attachmentId: string) => void;
     queueTaskForAI: (taskId: string) => void;
+
+    agents: AgentConfig[];
+    updateAgent: (id: AgentRole, updates: Partial<Omit<AgentConfig, 'id'>>) => void;
 }
 
 export const useTaskStore = create<TaskStore>((set) => ({
@@ -485,4 +498,59 @@ export const useTaskStore = create<TaskStore>((set) => ({
                 }),
             };
         }),
+
+    agents: [
+        {
+            id: 'enricher',
+            name: 'Ticket Enricher',
+            role: 'Senior Engineering Manager',
+            description: 'Rewrites task titles and descriptions to be clear, actionable, and developer-friendly using INVEST criteria.',
+            goal: 'Produce precise, well-scoped engineering tickets',
+            enabled: true,
+            color: 'bg-yellow-500',
+        },
+        {
+            id: 'spec',
+            name: 'Spec Writer',
+            role: 'Software Architect',
+            description: 'Generates BDD acceptance criteria (Given/When/Then) and a numbered implementation plan of max 7 steps.',
+            goal: 'Create testable specifications before a single line of code is written',
+            enabled: true,
+            color: 'bg-blue-500',
+        },
+        {
+            id: 'developer',
+            name: 'Developer',
+            role: 'Principal Engineer',
+            description: 'Implements the feature using Aider on an isolated git worktree, then runs the full test suite to verify.',
+            goal: 'Ship working, tested code on a feature branch',
+            enabled: true,
+            color: 'bg-orange-500',
+        },
+        {
+            id: 'qa',
+            name: 'QA Engineer',
+            role: 'Quality Assurance Engineer',
+            description: 'Reviews the git diff and test results against the acceptance criteria, providing a pass/fail verdict.',
+            goal: 'Catch regressions and verify every acceptance criterion is met',
+            enabled: true,
+            color: 'bg-purple-500',
+        },
+        {
+            id: 'po',
+            name: 'Product Owner',
+            role: 'Product Owner',
+            description: 'Evaluates the completed feature from a business perspective and approves or rejects with specific feedback.',
+            goal: 'Approve only features that fully satisfy business requirements',
+            enabled: true,
+            color: 'bg-green-500',
+        },
+    ],
+
+    updateAgent: (id, updates) =>
+        set((state) => ({
+            agents: state.agents.map((agent) =>
+                agent.id === id ? { ...agent, ...updates } : agent
+            ),
+        })),
 }));

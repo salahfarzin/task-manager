@@ -62,6 +62,7 @@ async def process_task(
         title=body.title,
         description=body.description,
         tags=body.tags,
+        agent_configs=body.agent_configs,
     )
     _states[task_id] = state
     background_tasks.add_task(_run_pipeline, state)

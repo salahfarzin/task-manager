@@ -17,7 +17,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
   const { t } = useTranslation();
   
   // Get task directly from store - this ensures modal gets fresh data without re-mounting
-  const { boards, updateTask, deleteTask, removeAttachment } = useTaskStore();
+  const { boards, updateTask, deleteTask, removeAttachment, agents } = useTaskStore();
   const task = boards
     .flatMap(board => board.lists)
     .flatMap(list => list.tasks)
@@ -30,8 +30,6 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
   const [dueDate, setDueDate] = useState('');
   const [estimation, setEstimation] = useState('');
   const [assignee, setAssignee] = useState('');
-
-  const users = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve'];
 
   // Sync state when modal opens or task changes
   useEffect(() => {
@@ -250,10 +248,10 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
                 onChange={(e) => setAssignee(e.target.value)}
                 className="input-base"
               >
-                <option value="">Unassigned</option>
-                {users.map((user) => (
-                  <option key={user} value={user}>
-                    {user}
+                <option value="">{t('task.unassigned')}</option>
+                {agents.filter((a) => a.enabled).map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name} — {agent.role}
                   </option>
                 ))}
               </select>

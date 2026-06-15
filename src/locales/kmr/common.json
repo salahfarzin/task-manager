@@ -85,5 +85,21 @@
       "qa": "QA",
       "po": "PO"
     }
+  },
+  "agents": {
+    "title": "Ajanên AI",
+    "subtitle": "Ajanên ku peywirên we pêvajoyê dikin mîheng bikin.",
+    "role": "Rol / Sernavek",
+    "goal": "Armanc",
+    "description": "Danasîn",
+    "enable": "Ajanê çalak bike",
+    "disable": "Ajanê neçalak bike",
+    "id": {
+      "enricher": "Dewlemendkerê Biletê",
+      "spec": "Nivîskarê Taybetmendiyê",
+      "developer": "Pêşdebir",
+      "qa": "Endezyarê QA",
+      "po": "Xwedanê Hilberê"
+    }
   }
 }

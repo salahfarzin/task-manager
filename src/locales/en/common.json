@@ -28,7 +28,7 @@
     "createdAt": "Created",
     "estimation": "Estimation (Hours)",
     "assignee": "Assignee",
-    "updatedAt": "Updated",
+    "unassigned": "Unassigned",
     "delete": "Delete Task",
     "save": "Save",
     "cancel": "Cancel",
@@ -84,6 +84,22 @@
       "developer": "Developer",
       "qa": "QA",
       "po": "PO"
+    }
+  },
+  "agents": {
+    "title": "AI Agents",
+    "subtitle": "Configure the agents that process your tasks through the pipeline.",
+    "role": "Role / Title",
+    "goal": "Goal",
+    "description": "Description",
+    "enable": "Enable agent",
+    "disable": "Disable agent",
+    "id": {
+      "enricher": "Ticket Enricher",
+      "spec": "Spec Writer",
+      "developer": "Developer",
+      "qa": "QA Engineer",
+      "po": "Product Owner"
     }
   }
 }

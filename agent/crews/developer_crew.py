@@ -14,8 +14,9 @@ class DeveloperOutput(BaseModel):
 
 
 class DeveloperCrew:
-    def __init__(self, task_id: str) -> None:
+    def __init__(self, task_id: str, override: dict | None = None) -> None:
         self.task_id = task_id
+        self._override = override or {}
 
     def crew(self) -> Crew:
         repo = settings.repo_path
@@ -24,12 +25,18 @@ class DeveloperCrew:
         test_tool = NpmTestTool(repo_path=repo)
 
         developer = Agent(
-            role="Senior Software Developer",
-            goal="Create a feature branch, implement the task using Aider, verify all tests pass",
-            backstory=(
-                "You are a principal engineer who uses AI coding tools (Aider) to implement features "
-                "precisely. You always verify that the test suite passes before declaring success. "
-                "If tests fail, you iterate with Aider using the error output as context."
+            role=self._override.get("role", "Senior Software Developer"),
+            goal=self._override.get(
+                "goal",
+                "Create a feature branch, implement the task using Aider, verify all tests pass",
+            ),
+            backstory=self._override.get(
+                "description",
+                (
+                    "You are a principal engineer who uses AI coding tools (Aider) to implement features "
+                    "precisely. You always verify that the test suite passes before declaring success. "
+                    "If tests fail, you iterate with Aider using the error output as context."
+                ),
             ),
             tools=[branch_tool, aider_tool, test_tool],
             llm=settings.llm_model,

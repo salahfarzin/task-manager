@@ -85,5 +85,21 @@
       "qa": "QA",
       "po": "PO"
     }
+  },
+  "agents": {
+    "title": "KI-Agenten",
+    "subtitle": "Konfigurieren Sie die Agenten, die Ihre Aufgaben verarbeiten.",
+    "role": "Rolle / Titel",
+    "goal": "Ziel",
+    "description": "Beschreibung",
+    "enable": "Agent aktivieren",
+    "disable": "Agent deaktivieren",
+    "id": {
+      "enricher": "Ticket-Anreicherung",
+      "spec": "Spezifikations-Autor",
+      "developer": "Entwickler",
+      "qa": "QA-Ingenieur",
+      "po": "Product Owner"
+    }
   }
 }

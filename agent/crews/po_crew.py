@@ -10,17 +10,26 @@ class POOutput(BaseModel):
 
 
 class POCrew:
+    def __init__(self, override: dict | None = None) -> None:
+        self._override = override or {}
+
     def crew(self) -> Crew:
         po_agent = Agent(
-            role="Product Owner",
-            goal=(
-                "Validate that the completed feature meets all business requirements "
-                "and acceptance criteria before approving it for merge"
+            role=self._override.get("role", "Product Owner"),
+            goal=self._override.get(
+                "goal",
+                (
+                    "Validate that the completed feature meets all business requirements "
+                    "and acceptance criteria before approving it for merge"
+                ),
             ),
-            backstory=(
-                "You are a product owner who evaluates completed features with a business lens. "
-                "You approve features that fully satisfy acceptance criteria and reject those that don't, "
-                "providing specific, actionable feedback for each rejection."
+            backstory=self._override.get(
+                "description",
+                (
+                    "You are a product owner who evaluates completed features with a business lens. "
+                    "You approve features that fully satisfy acceptance criteria and reject those that don't, "
+                    "providing specific, actionable feedback for each rejection."
+                ),
             ),
             llm=settings.llm_model,
             verbose=False,

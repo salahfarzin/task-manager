@@ -12,21 +12,30 @@ class QAOutput(BaseModel):
 
 
 class QACrew:
+    def __init__(self, override: dict | None = None) -> None:
+        self._override = override or {}
+
     def crew(self) -> Crew:
         repo = settings.repo_path
         diff_tool = ReadDiffTool(repo_path=repo)
         test_tool = NpmTestTool(repo_path=repo)
 
         qa_agent = Agent(
-            role="QA Engineer",
-            goal=(
-                "Review the implementation diff against acceptance criteria "
-                "and confirm the test suite passes"
+            role=self._override.get("role", "QA Engineer"),
+            goal=self._override.get(
+                "goal",
+                (
+                    "Review the implementation diff against acceptance criteria "
+                    "and confirm the test suite passes"
+                ),
             ),
-            backstory=(
-                "You are a meticulous QA engineer who reads git diffs and test results "
-                "to verify that implementations satisfy acceptance criteria. "
-                "You provide structured pass/fail verdicts with actionable feedback."
+            backstory=self._override.get(
+                "description",
+                (
+                    "You are a meticulous QA engineer who reads git diffs and test results "
+                    "to verify that implementations satisfy acceptance criteria. "
+                    "You provide structured pass/fail verdicts with actionable feedback."
+                ),
             ),
             tools=[diff_tool, test_tool],
             llm=settings.llm_model,
