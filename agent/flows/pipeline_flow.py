@@ -1,5 +1,6 @@
 import logging
 import re
+import subprocess
 
 from crewai.flow.flow import Flow, listen, router, start
 
@@ -32,6 +33,20 @@ class PipelineFlow(Flow[PipelineState]):
         title = self.state.enriched_title or self.state.title
         slug = re.sub(r'[^a-z0-9]+', '_', title.lower()).strip('_')[:40]
         return f"feat/{self.state.task_id}_{slug}"
+
+    def _get_changed_files(self, branch_name: str) -> list[str]:
+        """Read the list of files changed on the branch vs HEAD using git diff."""
+        repo = self.state.repo_path or settings.repo_path
+        result = subprocess.run(
+            ["git", "diff", "--name-only", f"HEAD...{branch_name}"],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            logger.warning("git diff failed for branch %s: %s", branch_name, result.stderr)
+            return []
+        return [f.strip() for f in result.stdout.strip().splitlines() if f.strip()]
 
     @start()
     def step_enrich(self) -> None:
@@ -67,19 +82,24 @@ class PipelineFlow(Flow[PipelineState]):
         _log(self.state, "developer", "started", f"Implementing (attempt {attempt})")
         self.state.status = AiStatus.implementing
 
+        branch = self._branch_name()
+
         result = DeveloperCrew(task_id=self.state.task_id, override=self._override("developer"), repo_path=self.state.repo_path).crew().kickoff(
             inputs={
                 "title": self.state.enriched_title,
                 "implementation_plan": self.state.implementation_plan,
                 "acceptance_criteria": self.state.acceptance_criteria,
                 "task_id": self.state.task_id,
-                "branch_name": self._branch_name(),
+                "branch_name": branch,
             }
         )
         output = result.pydantic
-        self.state.branch_name = output.branch_name
+
+        # Trust our own slug, not the LLM's text output
+        self.state.branch_name = branch
         self.state.tests_pass = output.tests_pass
-        self.state.changed_files = output.changed_files
+        # Read actual changed files from git instead of relying on LLM self-reporting
+        self.state.changed_files = self._get_changed_files(branch)
         self.state.implement_retries += 1
 
         log_status = "completed" if self.state.tests_pass else "failed"
