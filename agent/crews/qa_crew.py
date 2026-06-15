@@ -29,7 +29,7 @@ class QACrew:
                 "You provide structured pass/fail verdicts with actionable feedback."
             ),
             tools=[diff_tool, test_tool],
-            llm=settings.openai_model,
+            llm=settings.llm_model,
             verbose=False,
         )
 

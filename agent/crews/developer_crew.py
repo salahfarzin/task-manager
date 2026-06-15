@@ -32,7 +32,7 @@ class DeveloperCrew:
                 "If tests fail, you iterate with Aider using the error output as context."
             ),
             tools=[branch_tool, aider_tool, test_tool],
-            llm=settings.openai_model,
+            llm=settings.llm_model,
             verbose=True,
         )
 

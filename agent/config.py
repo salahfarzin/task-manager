@@ -4,8 +4,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
+    # LLM — set either key; model string determines which provider is used.
+    # OpenAI examples:    gpt-4o, gpt-4o-mini
+    # Anthropic examples: anthropic/claude-sonnet-4-5, anthropic/claude-opus-4-5
     openai_api_key: str = ""
-    openai_model: str = "gpt-4o"
+    anthropic_api_key: str = ""
+    llm_model: str = "anthropic/claude-sonnet-4-5"
 
     repo_path: str = "."
     aider_path: str = "aider"

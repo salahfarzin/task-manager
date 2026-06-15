@@ -22,7 +22,7 @@ class POCrew:
                 "You approve features that fully satisfy acceptance criteria and reject those that don't, "
                 "providing specific, actionable feedback for each rejection."
             ),
-            llm=settings.openai_model,
+            llm=settings.llm_model,
             verbose=False,
         )
 

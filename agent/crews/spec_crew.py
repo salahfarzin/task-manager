@@ -19,7 +19,7 @@ class SpecCrew:
                 "(Given/When/Then) and breaks features into small, testable implementation steps. "
                 "You never over-engineer: max 7 implementation steps."
             ),
-            llm=settings.openai_model,
+            llm=settings.llm_model,
             verbose=False,
         )
 

@@ -22,7 +22,7 @@ class EnricherCrew:
                 "into precise, well-scoped engineering tickets. "
                 "You follow INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable)."
             ),
-            llm=settings.openai_model,
+            llm=settings.llm_model,
             verbose=False,
         )
 
