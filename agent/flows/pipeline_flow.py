@@ -29,6 +29,24 @@ class PipelineFlow(Flow[PipelineState]):
                 return {"role": cfg.role, "goal": cfg.goal, "description": cfg.description}
         return None
 
+    def _resolve_repo_path(self) -> str:
+        """Return a validated repo path.
+
+        Uses the task's repo_path when it exists and contains a .git directory.
+        Falls back to settings.repo_path with a warning otherwise.
+        """
+        candidate = self.state.repo_path or ""
+        if candidate and os.path.isdir(os.path.join(candidate, ".git")):
+            return candidate
+        if candidate:
+            logger.warning(
+                "[%s] repo_path '%s' is not a git repo — falling back to settings.repo_path '%s'",
+                self.state.task_id,
+                candidate,
+                settings.repo_path,
+            )
+        return settings.repo_path
+
     def _branch_name(self) -> str:
         """Generate a deterministic branch name: feat/{task_id}_{title_slug}."""
         title = self.state.enriched_title or self.state.title
@@ -42,7 +60,7 @@ class PipelineFlow(Flow[PipelineState]):
         We first check the worktree working-tree diff (uncommitted); fall back to
         a branch diff for the case where aider committed its own changes.
         """
-        repo = self.state.repo_path or settings.repo_path
+        repo = self._resolve_repo_path()
         worktree = os.path.join(repo, ".git", "worktrees-ai", branch_name)
 
         # Primary: uncommitted changes inside the worktree (aider --no-git)
@@ -104,8 +122,9 @@ class PipelineFlow(Flow[PipelineState]):
         self.state.status = AiStatus.implementing
 
         branch = self._branch_name()
+        repo = self._resolve_repo_path()
 
-        result = DeveloperCrew(task_id=self.state.task_id, override=self._override("developer"), repo_path=self.state.repo_path).crew().kickoff(
+        result = DeveloperCrew(task_id=self.state.task_id, override=self._override("developer"), repo_path=repo).crew().kickoff(
             inputs={
                 "title": self.state.enriched_title,
                 "implementation_plan": self.state.implementation_plan,
@@ -124,9 +143,7 @@ class PipelineFlow(Flow[PipelineState]):
         self.state.implement_retries += 1
 
         # Warn when the developer agent skipped tool calls (LLM hallucinated the output)
-        worktree = os.path.join(
-            self.state.repo_path or settings.repo_path, ".git", "worktrees-ai", branch
-        )
+        worktree = os.path.join(repo, ".git", "worktrees-ai", branch)
         if not os.path.isdir(worktree):
             _log(
                 self.state,

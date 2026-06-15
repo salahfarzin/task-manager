@@ -16,8 +16,7 @@ class DiffInput(BaseModel):
     branch_name: str
 
 
-def _worktree_path(branch_name: str) -> str:
-    repo = settings.repo_path
+def _worktree_path(repo: str, branch_name: str) -> str:
     return os.path.join(repo, ".git", "worktrees-ai", branch_name)
 
 
@@ -34,7 +33,10 @@ class CreateBranchTool(BaseTool):
 
     def _run(self, branch_name: str) -> str:
         repo = self.repo_path or settings.repo_path
-        worktree = _worktree_path(branch_name)
+        worktree = _worktree_path(repo, branch_name)
+
+        if not os.path.isdir(repo):
+            return f"Error: repo_path '{repo}' does not exist on disk."
 
         # Remove stale worktree if it exists
         if os.path.exists(worktree):
