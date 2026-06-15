@@ -20,5 +20,8 @@ class Settings(BaseSettings):
 
     max_implement_retries: int = 3
 
+    # Logging
+    log_debug: bool = False  # Set LOG_DEBUG=true in .env to enable DEBUG-level file logs
+
 
 settings = Settings()

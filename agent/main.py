@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 from flows.pipeline_flow import PipelineFlow
+from logging_config import configure_logging
 from models.task import AiStatus, PipelineState, ProcessRequest, StatusResponse
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,13 @@ _TERMINAL_STATUSES = {AiStatus.approved, AiStatus.rejected}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Agent service ready on %s:%d", settings.agent_host, settings.agent_port)
+    configure_logging(debug=settings.log_debug)
+    logger.info(
+        "Agent service ready on %s:%d (log_debug=%s)",
+        settings.agent_host,
+        settings.agent_port,
+        settings.log_debug,
+    )
     yield
 
 
