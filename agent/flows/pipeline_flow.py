@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 import subprocess
 
@@ -35,8 +36,28 @@ class PipelineFlow(Flow[PipelineState]):
         return f"feat/{self.state.task_id}_{slug}"
 
     def _get_changed_files(self, branch_name: str) -> list[str]:
-        """Read the list of files changed on the branch vs HEAD using git diff."""
+        """Return files modified by the developer.
+
+        Aider runs with --no-git so changes are uncommitted inside the worktree.
+        We first check the worktree working-tree diff (uncommitted); fall back to
+        a branch diff for the case where aider committed its own changes.
+        """
         repo = self.state.repo_path or settings.repo_path
+        worktree = os.path.join(repo, ".git", "worktrees-ai", branch_name)
+
+        # Primary: uncommitted changes inside the worktree (aider --no-git)
+        if os.path.isdir(worktree):
+            result = subprocess.run(
+                ["git", "diff", "--name-only", "HEAD"],
+                cwd=worktree,
+                capture_output=True,
+                text=True,
+            )
+            files = [f.strip() for f in result.stdout.strip().splitlines() if f.strip()]
+            if files:
+                return files
+
+        # Fallback: committed diff between branches
         result = subprocess.run(
             ["git", "diff", "--name-only", f"HEAD...{branch_name}"],
             cwd=repo,
@@ -101,6 +122,20 @@ class PipelineFlow(Flow[PipelineState]):
         # Read actual changed files from git instead of relying on LLM self-reporting
         self.state.changed_files = self._get_changed_files(branch)
         self.state.implement_retries += 1
+
+        # Warn when the developer agent skipped tool calls (LLM hallucinated the output)
+        worktree = os.path.join(
+            self.state.repo_path or settings.repo_path, ".git", "worktrees-ai", branch
+        )
+        if not os.path.isdir(worktree):
+            _log(
+                self.state,
+                "developer",
+                "failed",
+                "Worktree was never created — the agent did not call create_git_branch. "
+                "The LLM likely skipped tool calls and hallucinated the output.",
+            )
+            self.state.tests_pass = False
 
         log_status = "completed" if self.state.tests_pass else "failed"
         _log(
