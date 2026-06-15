@@ -21,6 +21,14 @@ class AgentLogEntry(BaseModel):
     message: str
 
 
+class MicroserviceInfo(BaseModel):
+    id: str
+    name: str
+    url: str
+    repo_path: Optional[str] = None
+    description: str = ""
+
+
 class AgentOverride(BaseModel):
     id: str
     name: str
@@ -34,6 +42,8 @@ class PipelineState(BaseModel):
     title: str
     description: str
     tags: list[str] = Field(default_factory=list)
+    repo_path: Optional[str] = None
+    microservices: list[MicroserviceInfo] = Field(default_factory=list)
     agent_configs: list[AgentOverride] = Field(default_factory=list)
 
     # Enricher output
@@ -76,6 +86,8 @@ class ProcessRequest(BaseModel):
     title: str
     description: str
     tags: list[str] = Field(default_factory=list)
+    repo_path: Optional[str] = None
+    microservices: list[MicroserviceInfo] = Field(default_factory=list)
     agent_configs: list[AgentOverride] = Field(default_factory=list)
 
 

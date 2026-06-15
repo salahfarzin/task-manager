@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import type { Task } from '../store/task-store';
 import { useTaskStore } from '../store/task-store';
 import { RichTextEditor } from './RichTextEditor';
-import { FileUpload } from './FileUpload';
+import { FileUpload } from '@/components/form';
 
 interface TaskEditModalProps {
   taskId: string;

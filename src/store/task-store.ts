@@ -66,10 +66,25 @@ export interface List {
     isAiQueue?: boolean;
 }
 
+export interface Microservice {
+    id: string;
+    name: string;
+    url: string;
+    repoPath: string;
+    description: string;
+}
+
+export interface BoardSettings {
+    repoPath: string;
+    agentUrl: string;
+    microservices: Microservice[];
+}
+
 export interface Board {
     id: string;
     title: string;
     lists: List[];
+    settings?: BoardSettings;
 }
 
 interface TaskStore {
@@ -78,6 +93,7 @@ interface TaskStore {
     addBoard: (title: string) => void;
     selectBoard: (boardId: string) => void;
     updateBoard: (boardId: string, updates: Partial<Board>) => void;
+    updateBoardSettings: (boardId: string, settings: BoardSettings) => void;
     deleteBoard: (boardId: string) => void;
     addList: (boardId: string, title: string) => void;
     updateList: (boardId: string, listId: string, title: string) => void;
@@ -197,6 +213,13 @@ export const useTaskStore = create<TaskStore>((set) => ({
         set((state) => ({
             boards: state.boards.map((board) =>
                 board.id === boardId ? { ...board, ...updates } : board
+            ),
+        })),
+
+    updateBoardSettings: (boardId, settings) =>
+        set((state) => ({
+            boards: state.boards.map((board) =>
+                board.id === boardId ? { ...board, settings } : board
             ),
         })),
 

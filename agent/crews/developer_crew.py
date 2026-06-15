@@ -14,12 +14,13 @@ class DeveloperOutput(BaseModel):
 
 
 class DeveloperCrew:
-    def __init__(self, task_id: str, override: dict | None = None) -> None:
+    def __init__(self, task_id: str, override: dict | None = None, repo_path: str | None = None) -> None:
         self.task_id = task_id
         self._override = override or {}
+        self._repo_path = repo_path or settings.repo_path
 
     def crew(self) -> Crew:
-        repo = settings.repo_path
+        repo = self._repo_path
         branch_tool = CreateBranchTool(repo_path=repo)
         aider_tool = AiderTool(repo_path=repo)
         test_tool = NpmTestTool(repo_path=repo)

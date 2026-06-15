@@ -14,7 +14,20 @@
       "placeholder": "Board name..."
     },
     "select": "Select Board",
-    "notFound": "Board not found"
+    "notFound": "Board not found",
+    "settings": {
+      "title": "Board Settings",
+      "repoPath": "Repository",
+      "repoPathHint": "A GitHub URL (github.com/user/repo) or an absolute local path (/Users/you/projects/app). Agents use this to clone or work on the code.",
+      "agentUrl": "Agent Service URL",
+      "agentUrlHint": "URL of the AI agent microservice that processes tasks for this board.",
+      "microservices": "Related Microservices",
+      "addMicroservice": "Add service",
+      "noMicroservices": "No microservices configured yet.",
+      "removeMicroservice": "Remove service",
+      "msName": "Service name",
+      "msDescription": "Short description (optional)"
+    }
   },
   "task": {
     "title": "Task Title",

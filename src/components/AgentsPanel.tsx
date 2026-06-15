@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bot, X, ChevronDown, ChevronUp, Pencil, Check } from 'lucide-react';
 import { useTaskStore, type AgentConfig, type AgentRole } from '@/store/task-store';
+import { Button, Input, Textarea } from '@/components/form';
 
 interface AgentCardProps {
     agent: AgentConfig;
@@ -43,8 +44,8 @@ const AgentCard = ({ agent, onUpdate }: AgentCardProps) => {
                 </div>
                 <div className="flex-1 min-w-0">
                     {editing ? (
-                        <input
-                            className="input-base text-sm py-0.5 px-2 w-full"
+                        <Input
+                            className="text-sm py-0.5 px-2 w-full"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             autoFocus
@@ -68,21 +69,21 @@ const AgentCard = ({ agent, onUpdate }: AgentCardProps) => {
                     </button>
                     {editing ? (
                         <>
-                            <button onClick={handleSave} className="p-1 rounded-lg text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20">
+                            <Button variant="ghost" onClick={handleSave} className="text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20">
                                 <Check className="w-4 h-4" />
-                            </button>
-                            <button onClick={handleCancel} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
+                            </Button>
+                            <Button variant="ghost" onClick={handleCancel}>
                                 <X className="w-4 h-4" />
-                            </button>
+                            </Button>
                         </>
                     ) : (
                         <>
-                            <button onClick={() => { setEditing(true); setExpanded(true); }} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary-600">
+                            <Button variant="ghost" onClick={() => { setEditing(true); setExpanded(true); }} className="hover:text-primary-600">
                                 <Pencil className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => setExpanded((v) => !v)} className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
+                            </Button>
+                            <Button variant="ghost" onClick={() => setExpanded((v) => !v)}>
                                 {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                            </button>
+                            </Button>
                         </>
                     )}
                 </div>
@@ -94,7 +95,7 @@ const AgentCard = ({ agent, onUpdate }: AgentCardProps) => {
                     <div>
                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{t('agents.role')}</p>
                         {editing ? (
-                            <input className="input-base text-sm py-1 px-2 w-full" value={role} onChange={(e) => setRole(e.target.value)} />
+                            <Input className="text-sm py-1 px-2 w-full" value={role} onChange={(e) => setRole(e.target.value)} />
                         ) : (
                             <p className="text-sm text-slate-700 dark:text-slate-300">{agent.role}</p>
                         )}
@@ -102,7 +103,7 @@ const AgentCard = ({ agent, onUpdate }: AgentCardProps) => {
                     <div>
                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{t('agents.goal')}</p>
                         {editing ? (
-                            <input className="input-base text-sm py-1 px-2 w-full" value={goal} onChange={(e) => setGoal(e.target.value)} />
+                            <Input className="text-sm py-1 px-2 w-full" value={goal} onChange={(e) => setGoal(e.target.value)} />
                         ) : (
                             <p className="text-sm text-slate-700 dark:text-slate-300">{agent.goal}</p>
                         )}
@@ -110,7 +111,7 @@ const AgentCard = ({ agent, onUpdate }: AgentCardProps) => {
                     <div>
                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{t('agents.description')}</p>
                         {editing ? (
-                            <textarea className="input-base text-sm py-1 px-2 w-full resize-none" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+                            <Textarea className="text-sm py-1 px-2 w-full" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
                         ) : (
                             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{agent.description}</p>
                         )}
@@ -170,13 +171,13 @@ export const AgentsPanel = ({ open, onClose }: AgentsPanelProps) => {
                         <Bot className="w-5 h-5 text-primary-600" />
                         <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100">{t('agents.title')}</h2>
                     </div>
-                    <button
+                    <Button
+                        variant="ghost"
                         onClick={onClose}
-                        className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 transition-colors"
                         aria-label={t('action.close')}
                     >
                         <X className="w-5 h-5" />
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Agent list */}

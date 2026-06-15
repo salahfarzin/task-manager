@@ -62,6 +62,8 @@ async def process_task(
         title=body.title,
         description=body.description,
         tags=body.tags,
+        repo_path=body.repo_path,
+        microservices=body.microservices,
         agent_configs=body.agent_configs,
     )
     _states[task_id] = state

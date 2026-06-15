@@ -60,7 +60,7 @@ class PipelineFlow(Flow[PipelineState]):
         _log(self.state, "developer", "started", f"Implementing (attempt {attempt})")
         self.state.status = AiStatus.implementing
 
-        result = DeveloperCrew(task_id=self.state.task_id, override=self._override("developer")).crew().kickoff(
+        result = DeveloperCrew(task_id=self.state.task_id, override=self._override("developer"), repo_path=self.state.repo_path).crew().kickoff(
             inputs={
                 "title": self.state.enriched_title,
                 "implementation_plan": self.state.implementation_plan,
@@ -103,7 +103,7 @@ class PipelineFlow(Flow[PipelineState]):
         _log(self.state, "qa", "started", "Reviewing implementation against acceptance criteria")
         self.state.status = AiStatus.qa_review
 
-        result = QACrew(override=self._override("qa")).crew().kickoff(
+        result = QACrew(override=self._override("qa"), repo_path=self.state.repo_path).crew().kickoff(
             inputs={
                 "acceptance_criteria": self.state.acceptance_criteria,
                 "branch_name": self.state.branch_name,

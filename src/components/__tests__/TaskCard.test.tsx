@@ -73,7 +73,7 @@ vi.mock('../RichTextEditor', () => ({
   ),
 }))
 
-vi.mock('../FileUpload', () => ({
+vi.mock('@/components/form/FileUpload', () => ({
   FileUpload: ({ onClose }: { onClose: () => void }) => (
     <div data-testid="file-upload">
       <button onClick={onClose} data-testid="file-upload-close">Close Upload</button>

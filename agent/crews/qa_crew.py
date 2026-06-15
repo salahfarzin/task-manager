@@ -12,11 +12,12 @@ class QAOutput(BaseModel):
 
 
 class QACrew:
-    def __init__(self, override: dict | None = None) -> None:
+    def __init__(self, override: dict | None = None, repo_path: str | None = None) -> None:
         self._override = override or {}
+        self._repo_path = repo_path or settings.repo_path
 
     def crew(self) -> Crew:
-        repo = settings.repo_path
+        repo = self._repo_path
         diff_tool = ReadDiffTool(repo_path=repo)
         test_tool = NpmTestTool(repo_path=repo)
 

@@ -6,7 +6,7 @@ import { format, isPast, isToday, isTomorrow } from 'date-fns';
 import type { Task, AgentLogEntry, AgentRole, AiStatus } from '../store/task-store';
 import { useTaskStore } from '../store/task-store';
 import { CONFIGS } from '../config';
-import { FileUpload } from './FileUpload';
+import { FileUpload } from '@/components/form';
 import { TaskEditModal } from './TaskEditModal';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -29,7 +29,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const [newTag, setNewTag] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
   
-  const { updateTask, deleteTask, removeAttachment, queueTaskForAI, agents } = useTaskStore();
+  const { updateTask, deleteTask, removeAttachment, queueTaskForAI, agents, boards, currentBoardId } = useTaskStore();
+  const currentBoard = boards.find((b) => b.id === currentBoardId);
+  const agentUrl = currentBoard?.settings?.agentUrl ?? CONFIGS.AGENT_URL;
 
   const {
     attributes,
@@ -72,7 +74,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
     const intervalId = setInterval(async () => {
       try {
-        const res = await fetch(`${CONFIGS.AGENT_URL}/api/tasks/${task.id}/status`);
+        const res = await fetch(`${agentUrl}/api/tasks/${task.id}/status`);
         if (!res.ok) {
           return;
         }
@@ -93,13 +95,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     }, 3000);
 
     return () => clearInterval(intervalId);
-  }, [task.aiStatus, task.id, updateTask]);
+  }, [task.aiStatus, task.id, updateTask, agentUrl]);
 
   const handleSendToAI = async (e: React.MouseEvent) => {
     e.stopPropagation();
     queueTaskForAI(task.id);
     try {
-      await fetch(`${CONFIGS.AGENT_URL}/api/tasks/${task.id}/process`, {
+      await fetch(`${agentUrl}/api/tasks/${task.id}/process`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -107,6 +109,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           title: task.title,
           description: task.description,
           tags: task.tags,
+          repo_path: currentBoard?.settings?.repoPath || undefined,
+          microservices: (currentBoard?.settings?.microservices ?? []).map((ms) => ({
+            id: ms.id,
+            name: ms.name,
+            url: ms.url,
+            repo_path: ms.repoPath || undefined,
+            description: ms.description,
+          })),
           agent_configs: agents.filter((a) => a.enabled).map((a) => ({
             id: a.id,
             name: a.name,
