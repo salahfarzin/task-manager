@@ -3,45 +3,71 @@ Centralised logging configuration.
 
 Produces three log destinations:
   - Console   : INFO and above (keeps terminal readable)
-  - agent.log : LOG_LEVEL and above, daily rotation (default INFO)
-  - error.log : ERROR and above only, daily rotation (always on)
+  - app-YYYY-MM-DD.log   : LOG_LEVEL and above — live file already carries today's date
+  - error-YYYY-MM-DD.log : ERROR and above only, always on
 
-File naming pattern:
-  storage/logs/agent.log            ← today's live log
-  storage/logs/agent-YYYY-MM-DD.log ← rotated
-  storage/logs/error.log
-  storage/logs/error-YYYY-MM-DD.log
+Rotation happens at midnight: the handler closes the old file and opens a new one
+named with the new date. Files older than 30 days are deleted automatically.
 """
 
 import logging
 import logging.handlers
-import re
+from datetime import date, timedelta
 from pathlib import Path
 
 
-def _make_rotating_handler(
-    log_dir: Path,
-    stem: str,
-    level: int,
-    fmt: logging.Formatter,
-) -> logging.handlers.TimedRotatingFileHandler:
-    handler = logging.handlers.TimedRotatingFileHandler(
-        filename=str(log_dir / f"{stem}.log"),
-        when="midnight",
-        interval=1,
-        backupCount=30,
-        encoding="utf-8",
-        delay=False,
-    )
-    handler.suffix = "%Y-%m-%d"
-    # e.g. agent.log.2026-06-15  →  agent-2026-06-15.log
-    pattern = re.compile(
-        rf"(.*[/\\]{re.escape(stem)})\.log\.(\d{{4}}-\d{{2}}-\d{{2}})$"
-    )
-    handler.namer = lambda name: pattern.sub(r"\1-\2.log", name)
-    handler.setLevel(level)
-    handler.setFormatter(fmt)
-    return handler
+class DailyFileHandler(logging.FileHandler):
+    """FileHandler that writes to <stem>-YYYY-MM-DD.log and rotates at midnight."""
+
+    def __init__(
+        self,
+        log_dir: Path,
+        stem: str,
+        level: int,
+        fmt: logging.Formatter,
+        backup_days: int = 30,
+    ) -> None:
+        self._log_dir = log_dir
+        self._stem = stem
+        self._backup_days = backup_days
+        self._current_date = date.today()
+        super().__init__(
+            filename=self._path_for(self._current_date),
+            mode="a",
+            encoding="utf-8",
+            delay=False,
+        )
+        self.setLevel(level)
+        self.setFormatter(fmt)
+
+    def _path_for(self, d: date) -> str:
+        return str(self._log_dir / f"{self._stem}-{d:%Y-%m-%d}.log")
+
+    def _rotate(self) -> None:
+        """Close current file, open today's, prune old files."""
+        if self.stream:
+            self.stream.flush()
+            self.stream.close()
+            self.stream = None  # type: ignore[assignment]
+        self._current_date = date.today()
+        self.baseFilename = self._path_for(self._current_date)
+        self.stream = self._open()
+        self._prune()
+
+    def _prune(self) -> None:
+        cutoff = date.today() - timedelta(days=self._backup_days)
+        for f in self._log_dir.glob(f"{self._stem}-*.log"):
+            try:
+                file_date = date.fromisoformat(f.stem[len(self._stem) + 1:])
+                if file_date < cutoff:
+                    f.unlink(missing_ok=True)
+            except ValueError:
+                pass
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if date.today() != self._current_date:
+            self._rotate()
+        super().emit(record)
 
 
 def configure_logging(
@@ -58,7 +84,7 @@ def configure_logging(
         log_dir:   Directory for log files. Relative paths are resolved from
                    the agent package root. Defaults to storage/logs.
         log_level: Standard level name (DEBUG/INFO/WARNING/ERROR).
-                   Controls agent.log verbosity. error.log is always ERROR+.
+                   Controls app-*.log verbosity. error-*.log is always ERROR+.
     """
     if log_dir is None:
         log_dir = Path(__file__).parent / "storage" / "logs"
@@ -76,29 +102,27 @@ def configure_logging(
     )
 
     root = logging.getLogger()
-    # Root must be at the lowest level so all handlers can filter independently.
+    # Root must sit at the lowest requested level so all handlers filter freely.
     root.setLevel(min(numeric_level, logging.ERROR))
 
-    existing_files = {
-        getattr(h, "baseFilename", None)
+    existing_stems = {
+        getattr(h, "_stem", None)
         for h in root.handlers
-        if isinstance(h, logging.handlers.TimedRotatingFileHandler)
+        if isinstance(h, DailyFileHandler)
     }
 
-    # --- agent.log : level-based (INFO by default) -----------------------
-    agent_log = str(log_dir / "agent.log")
-    if agent_log not in existing_files:
-        root.addHandler(_make_rotating_handler(log_dir, "agent", numeric_level, fmt))
+    # --- app-YYYY-MM-DD.log : level-based (INFO by default) --------------
+    if "app" not in existing_stems:
+        root.addHandler(DailyFileHandler(log_dir, "app", numeric_level, fmt))
 
-    # --- error.log : ERROR and above, always -----------------------------
-    error_log = str(log_dir / "error.log")
-    if error_log not in existing_files:
-        root.addHandler(_make_rotating_handler(log_dir, "error", logging.ERROR, fmt))
+    # --- error-YYYY-MM-DD.log : ERROR and above, always ------------------
+    if "error" not in existing_stems:
+        root.addHandler(DailyFileHandler(log_dir, "error", logging.ERROR, fmt))
 
     # --- Console : INFO and above (never noisier than INFO) --------------
     has_console = any(
         isinstance(h, logging.StreamHandler)
-        and not isinstance(h, logging.handlers.TimedRotatingFileHandler)
+        and not isinstance(h, DailyFileHandler)
         for h in root.handlers
     )
     if not has_console:

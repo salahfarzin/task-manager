@@ -38,9 +38,12 @@ class AgentOverride(BaseModel):
 
 
 class PipelineState(BaseModel):
-    task_id: str
-    title: str
-    description: str
+    # Required fields have empty defaults so CrewAI's Flow.__init__ can
+    # instantiate PipelineState() before kickoff() overwrites them with
+    # real values from the inputs dict.
+    task_id: str = ""
+    title: str = ""
+    description: str = ""
     tags: list[str] = Field(default_factory=list)
     repo_path: Optional[str] = None
     microservices: list[MicroserviceInfo] = Field(default_factory=list)
