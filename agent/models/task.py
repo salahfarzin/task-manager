@@ -74,14 +74,6 @@ class PipelineState(BaseModel):
     error: Optional[str] = None
 
 
-class AgentOverride(BaseModel):
-    id: str
-    name: str
-    role: str
-    goal: str
-    description: str
-
-
 class ProcessRequest(BaseModel):
     task_id: str
     title: str
