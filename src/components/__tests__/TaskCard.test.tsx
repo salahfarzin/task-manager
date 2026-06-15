@@ -131,6 +131,9 @@ vi.mock('lucide-react', () => ({
   Calendar: () => <div data-testid="calendar-icon">Calendar</div>,
   User: () => <div data-testid="user-icon">User</div>,
   Clock: () => <div data-testid="clock-icon">Clock</div>,
+  Bot: () => <div data-testid="bot-icon">Bot</div>,
+  ChevronDown: () => <div data-testid="chevron-down-icon">ChevronDown</div>,
+  ChevronUp: () => <div data-testid="chevron-up-icon">ChevronUp</div>,
 }))
 
 describe('TaskCard', () => {

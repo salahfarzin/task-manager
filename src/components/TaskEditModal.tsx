@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Save, Calendar, Paperclip, User, Trash2 } from 'lucide-react';
+import { X, Save, Calendar, Paperclip, User, Trash2, Bot, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Task } from '../store/task-store';
 import { useTaskStore } from '../store/task-store';
@@ -328,6 +328,11 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
           <div className="text-sm text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200 dark:border-slate-700">
             {t('task.createdAt')}: {format(new Date(task.createdAt), 'MMM dd, yyyy HH:mm')}
           </div>
+
+          {/* Agent Log Panel */}
+          {task.aiAgentLog && task.aiAgentLog.length > 0 && (
+            <AgentLogPanel task={task} />
+          )}
         </div>
 
         {/* Footer */}
@@ -348,6 +353,76 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
           </button>
         </div>
       </div>
+    </div>
+  );
+};
+
+interface AgentLogPanelProps {
+  task: Task;
+}
+
+const AgentLogPanel: React.FC<AgentLogPanelProps> = ({ task }) => {
+  const { t } = useTranslation();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!task.aiAgentLog || task.aiAgentLog.length === 0) {
+    return null;
+  }
+
+  const agentStatusColors: Record<string, string> = {
+    started: 'text-blue-600 dark:text-blue-400',
+    completed: 'text-green-600 dark:text-green-400',
+    failed: 'text-red-600 dark:text-red-400',
+  };
+
+  return (
+    <div
+      className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden"
+      data-testid="agent-log-panel"
+    >
+      <button
+        onClick={() => setIsExpanded((prev) => !prev)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-sm font-medium text-slate-700 dark:text-slate-300"
+        aria-expanded={isExpanded}
+      >
+        <span className="flex items-center gap-2">
+          <Bot className="w-4 h-4 text-indigo-500" />
+          {t('ai.agentLog')}
+          <span className="text-xs text-slate-500 dark:text-slate-400">
+            ({task.aiAgentLog.length})
+          </span>
+        </span>
+        {isExpanded ? (
+          <ChevronUp className="w-4 h-4" />
+        ) : (
+          <ChevronDown className="w-4 h-4" />
+        )}
+      </button>
+
+      {isExpanded && (
+        <ul className="divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto custom-scrollbar">
+          {task.aiAgentLog.map((entry) => (
+            <li
+              key={entry.id}
+              className="flex items-start gap-3 px-4 py-2.5 text-sm"
+              data-testid="agent-log-entry"
+            >
+              <span className="text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap pt-0.5 min-w-[70px]">
+                {format(new Date(entry.timestamp), 'HH:mm:ss')}
+              </span>
+              <span className="font-medium text-slate-600 dark:text-slate-300 min-w-[80px]">
+                {t(`ai.agent.${entry.agent}`)}
+              </span>
+              <span className={`font-medium min-w-[64px] ${agentStatusColors[entry.status] ?? ''}`}>
+                {entry.status}
+              </span>
+              <span className="text-slate-600 dark:text-slate-400 flex-1">
+                {entry.message}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

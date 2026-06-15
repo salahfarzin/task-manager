@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Edit, Trash2, Paperclip, Tag, X, Calendar, User, Clock } from 'lucide-react';
+import { Edit, Trash2, Paperclip, Tag, X, Calendar, User, Clock, Bot } from 'lucide-react';
 import { format, isPast, isToday, isTomorrow } from 'date-fns';
-import type { Task } from '../store/task-store';
+import type { Task, AiStatus } from '../store/task-store';
 import { useTaskStore } from '../store/task-store';
 import { FileUpload } from './FileUpload';
 import { TaskEditModal } from './TaskEditModal';
@@ -20,7 +20,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const [newTag, setNewTag] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
   
-  const { updateTask, deleteTask, removeAttachment } = useTaskStore();
+  const { updateTask, deleteTask, removeAttachment, queueTaskForAI } = useTaskStore();
 
   const {
     attributes,
@@ -54,6 +54,25 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     if (window.confirm(t('task.delete') + '?')) {
       deleteTask(task.id);
     }
+  };
+
+  const handleSendToAI = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    queueTaskForAI(task.id);
+  };
+
+  const getAiStatusStyle = (status: AiStatus): string => {
+    const styles: Record<AiStatus, string> = {
+      idle: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+      queued: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+      enriching: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300',
+      implementing: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
+      qa_review: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
+      po_review: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
+      approved: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+      rejected: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+    };
+    return styles[status];
   };
 
   const getTagColor = (index: number) => {
@@ -93,6 +112,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               {task.title}
             </h3>
             <div className="flex items-center space-x-1 rtl:space-x-reverse">
+              {(!task.aiStatus || task.aiStatus === 'idle') && (
+                <button
+                  onClick={handleSendToAI}
+                  className="p-1.5 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200 group hover:scale-110"
+                  aria-label={t('ai.sendToAI')}
+                  data-testid="send-to-ai-button"
+                >
+                  <Bot className="w-4 h-4 text-slate-700 dark:text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                </button>
+              )}
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 group hover:scale-110"
@@ -111,6 +140,17 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             </div>
           </div>
 
+          {task.aiStatus && task.aiStatus !== 'idle' && (
+            <div className="animate-fade-in">
+              <span
+                className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${getAiStatusStyle(task.aiStatus)}`}
+                data-testid="ai-status-badge"
+              >
+                <Bot className="w-3 h-3" />
+                {t(`ai.status.${task.aiStatus}`)}
+              </span>
+            </div>
+          )}
           {task.description && (
             <div
               className="prose prose-sm dark:prose-invert max-w-none animate-fade-in cursor-pointer hover:opacity-80 transition-opacity"
