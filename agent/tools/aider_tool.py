@@ -5,26 +5,28 @@ from crewai.tools import BaseTool
 from pydantic import BaseModel
 
 from config import settings
+from tools.git_tool import _worktree_path
 
 
 class AiderInput(BaseModel):
     instruction: str
+    branch_name: str = ""
 
 
 class AiderTool(BaseTool):
-    """Runs Aider headless to apply code changes described by a plain-language instruction."""
+    """Runs Aider headless inside the branch's worktree to apply code changes."""
 
     name: str = "aider_coder"
     description: str = (
-        "Run Aider headless to modify source code files. "
-        "Pass a precise instruction describing what changes to make. "
+        "Run Aider headless to modify source code files inside the feature branch worktree. "
+        "Pass a precise instruction and the branch_name. "
         "Returns Aider's stdout/stderr output."
     )
     args_schema: Type[BaseModel] = AiderInput
     repo_path: str = ""
 
-    def _run(self, instruction: str) -> str:
-        repo = self.repo_path or settings.repo_path
+    def _run(self, instruction: str, branch_name: str = "") -> str:
+        cwd = _worktree_path(branch_name) if branch_name else (self.repo_path or settings.repo_path)
         result = subprocess.run(
             [
                 settings.aider_path,
@@ -33,11 +35,10 @@ class AiderTool(BaseTool):
                 "--message",
                 instruction,
             ],
-            cwd=repo,
+            cwd=cwd,
             capture_output=True,
             text=True,
             timeout=300,
         )
         output = (result.stdout + result.stderr).strip()
-        # Truncate to avoid LLM context overflow
         return output[-6000:] if len(output) > 6000 else output
