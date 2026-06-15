@@ -67,6 +67,9 @@
   },
   "ai": {
     "sendToAI": "Envoyer à l'IA",
+    "enrichedTitle": "Titre enrichi par l'IA",
+    "acceptanceCriteria": "Critères d'acceptation",
+    "working": "en cours…",
     "agentLog": "Journal de l'agent",
     "status": {
       "idle": "Inactif",

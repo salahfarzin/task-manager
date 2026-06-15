@@ -67,6 +67,9 @@
   },
   "ai": {
     "sendToAI": "ارسال به هوش مصنوعی",
+    "enrichedTitle": "عنوان بهبودیافته توسط هوش مصنوعی",
+    "acceptanceCriteria": "معیارهای پذیرش",
+    "working": "در حال کار…",
     "agentLog": "گزارش عامل",
     "status": {
       "idle": "بیکار",

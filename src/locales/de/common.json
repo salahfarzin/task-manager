@@ -67,6 +67,9 @@
   },
   "ai": {
     "sendToAI": "An KI senden",
+    "enrichedTitle": "KI-verbesserter Titel",
+    "acceptanceCriteria": "Akzeptanzkriterien",
+    "working": "arbeitet…",
     "agentLog": "Agenten-Protokoll",
     "status": {
       "idle": "Inaktiv",

@@ -81,6 +81,9 @@
   "ai": {
     "sendToAI": "Send to AI",
     "agentLog": "Agent Log",
+    "enrichedTitle": "AI-enriched title",
+    "acceptanceCriteria": "Acceptance criteria",
+    "working": "working…",
     "status": {
       "idle": "Idle",
       "queued": "Queued",

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Edit, Trash2, Paperclip, Tag, X, Calendar, User, Clock, Bot } from 'lucide-react';
+import { Edit, Trash2, Paperclip, Tag, X, Calendar, User, Clock, Bot, GitBranch, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { format, isPast, isToday, isTomorrow } from 'date-fns';
 import type { Task, AgentLogEntry, AgentRole, AiStatus } from '../store/task-store';
 import { useTaskStore } from '../store/task-store';
@@ -19,6 +19,14 @@ const ACTIVE_AI_STATUSES = new Set<AiStatus>([
   'po_review',
 ]);
 
+// Maps each active pipeline status to the agent currently responsible
+const STATUS_TO_AGENT: Partial<Record<AiStatus, AgentRole>> = {
+  enriching: 'enricher',
+  implementing: 'developer',
+  qa_review: 'qa',
+  po_review: 'po',
+};
+
 interface TaskCardProps {
   task: Task;
 }
@@ -28,6 +36,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTag, setNewTag] = useState('');
   const [showFileUpload, setShowFileUpload] = useState(false);
+  const [showCriteria, setShowCriteria] = useState(false);
   
   const { updateTask, deleteTask, removeAttachment, queueTaskForAI, agents, boards, currentBoardId } = useTaskStore();
   const currentBoard = boards.find((b) => b.id === currentBoardId);
@@ -88,7 +97,32 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             message: entry.message,
           }),
         );
-        updateTask(task.id, { aiStatus: data.status, aiAgentLog: log });
+
+        const updates: Parameters<typeof updateTask>[1] = {
+          aiStatus: data.status,
+          aiAgentLog: log,
+        };
+
+        if (data.enriched_title) {
+          updates.enrichedTitle = data.enriched_title;
+        }
+        if (data.enriched_description) {
+          updates.enrichedDescription = data.enriched_description;
+        }
+        if (data.acceptance_criteria) {
+          updates.acceptanceCriteria = data.acceptance_criteria;
+        }
+        if (data.branch_name) {
+          updates.branchName = data.branch_name;
+        }
+
+        // Auto-assign to the agent currently handling the task
+        const activeAgent = STATUS_TO_AGENT[data.status as AiStatus];
+        if (activeAgent) {
+          updates.assignee = activeAgent;
+        }
+
+        updateTask(task.id, updates);
       } catch {
         // ignore transient network errors during polling
       }
@@ -100,6 +134,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
   const handleSendToAI = async (e: React.MouseEvent) => {
     e.stopPropagation();
     queueTaskForAI(task.id);
+    // Immediately reflect that the enricher is starting
+    updateTask(task.id, { assignee: 'enricher' });
     try {
       await fetch(`${agentUrl}/api/tasks/${task.id}/process`, {
         method: 'POST',
@@ -219,6 +255,46 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                 <Bot className="w-3 h-3" />
                 {t(`ai.status.${task.aiStatus}`)}
               </span>
+            </div>
+          )}
+
+          {/* AI pipeline results */}
+          {(task.enrichedTitle || task.branchName || task.acceptanceCriteria) && (
+            <div className="rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-900/20 p-3 space-y-2 animate-fade-in text-sm">
+              {task.enrichedTitle && task.enrichedTitle !== task.title && (
+                <div>
+                  <p className="text-xs font-medium text-indigo-500 dark:text-indigo-400 flex items-center gap-1 mb-0.5">
+                    <Sparkles className="w-3 h-3" />
+                    {t('ai.enrichedTitle')}
+                  </p>
+                  <p className="text-slate-800 dark:text-slate-100 font-medium leading-snug">
+                    {task.enrichedTitle}
+                  </p>
+                </div>
+              )}
+              {task.branchName && (
+                <div className="flex items-center gap-1.5 text-xs text-indigo-700 dark:text-indigo-300 font-mono">
+                  <GitBranch className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="truncate">{task.branchName}</span>
+                </div>
+              )}
+              {task.acceptanceCriteria && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setShowCriteria((v) => !v); }}
+                    className="flex items-center gap-1 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 transition-colors cursor-pointer"
+                  >
+                    {showCriteria ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    {t('ai.acceptanceCriteria')}
+                  </button>
+                  {showCriteria && (
+                    <pre className="mt-1.5 text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                      {task.acceptanceCriteria}
+                    </pre>
+                  )}
+                </div>
+              )}
             </div>
           )}
           {task.description && (
@@ -359,18 +435,27 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               const displayName = agent ? agent.name : task.assignee;
               const initial = displayName.charAt(0).toUpperCase();
               const colorClass = agent ? agent.color : 'bg-purple-500';
+              const isAiActive = !!task.aiStatus && ACTIVE_AI_STATUSES.has(task.aiStatus) && !!STATUS_TO_AGENT[task.aiStatus];
               return (
-                <div 
+                <div
                   data-testid="task-assignee"
                   className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-slate-600 dark:text-slate-400"
                 >
-                  <div 
-                    className={`w-6 h-6 ${colorClass} text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800`}
-                    title={agent ? `${agent.name} — ${agent.role}` : displayName}
-                  >
-                    {initial}
+                  <div className="relative">
+                    <div
+                      className={`w-6 h-6 ${colorClass} text-white text-xs rounded-full flex items-center justify-center border-2 border-white dark:border-slate-800`}
+                      title={agent ? `${agent.name} — ${agent.role}` : displayName}
+                    >
+                      {initial}
+                    </div>
+                    {isAiActive && (
+                      <span className="absolute -top-0.5 -end-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white dark:border-slate-800 animate-pulse" />
+                    )}
                   </div>
                   <span>{displayName}</span>
+                  {isAiActive && (
+                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">{t('ai.working')}</span>
+                  )}
                 </div>
               );
             })()}

@@ -67,6 +67,9 @@
   },
   "ai": {
     "sendToAI": "Bişîne AI",
+    "enrichedTitle": "Sernavê baştirkirî ya AI",
+    "acceptanceCriteria": "Pîvanên qebûlkirinê",
+    "working": "dixebite…",
     "agentLog": "Têkevtina Ajentê",
     "status": {
       "idle": "Bêkar",

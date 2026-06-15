@@ -56,6 +56,11 @@ export interface Task {
     assignee?: string;
     aiStatus?: AiStatus;
     aiAgentLog?: AgentLogEntry[];
+    // Fields written back from the agent pipeline
+    enrichedTitle?: string;
+    enrichedDescription?: string;
+    acceptanceCriteria?: string;
+    branchName?: string;
 }
 
 export interface List {
