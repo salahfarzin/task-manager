@@ -1,4 +1,5 @@
 import logging
+import re
 
 from crewai.flow.flow import Flow, listen, router, start
 
@@ -25,6 +26,12 @@ class PipelineFlow(Flow[PipelineState]):
             if cfg.id == agent_id:
                 return {"role": cfg.role, "goal": cfg.goal, "description": cfg.description}
         return None
+
+    def _branch_name(self) -> str:
+        """Generate a deterministic branch name: feat/{task_id}_{title_slug}."""
+        title = self.state.enriched_title or self.state.title
+        slug = re.sub(r'[^a-z0-9]+', '_', title.lower()).strip('_')[:40]
+        return f"feat/{self.state.task_id}_{slug}"
 
     @start()
     def step_enrich(self) -> None:
@@ -66,11 +73,13 @@ class PipelineFlow(Flow[PipelineState]):
                 "implementation_plan": self.state.implementation_plan,
                 "acceptance_criteria": self.state.acceptance_criteria,
                 "task_id": self.state.task_id,
+                "branch_name": self._branch_name(),
             }
         )
         output = result.pydantic
         self.state.branch_name = output.branch_name
         self.state.tests_pass = output.tests_pass
+        self.state.changed_files = output.changed_files
         self.state.implement_retries += 1
 
         log_status = "completed" if self.state.tests_pass else "failed"

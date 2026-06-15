@@ -69,7 +69,8 @@
     "sendToAI": "Envoyer à l'IA",
     "enrichedTitle": "Titre enrichi par l'IA",
     "acceptanceCriteria": "Critères d'acceptation",
-    "working": "en cours…",
+    "working": "en cours...",
+    "changedFiles": "Fichiers modifiés",
     "agentLog": "Journal de l'agent",
     "status": {
       "idle": "Inactif",

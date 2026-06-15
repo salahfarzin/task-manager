@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Save, Calendar, Paperclip, User, Trash2, Bot, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Save, Calendar, Paperclip, User, Trash2, Bot, ChevronDown, ChevronUp, GitBranch, FileCode } from 'lucide-react';
 import { format } from 'date-fns';
 import type { Task } from '../store/task-store';
 import { useTaskStore } from '../store/task-store';
@@ -380,7 +380,7 @@ const AgentLogPanel: React.FC<AgentLogPanelProps> = ({ task }) => {
     >
       <button
         onClick={() => setIsExpanded((prev) => !prev)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-sm font-medium text-slate-700 dark:text-slate-300"
+        className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer"
         aria-expanded={isExpanded}
       >
         <span className="flex items-center gap-2">
@@ -398,28 +398,55 @@ const AgentLogPanel: React.FC<AgentLogPanelProps> = ({ task }) => {
       </button>
 
       {isExpanded && (
-        <ul className="divide-y divide-slate-100 dark:divide-slate-800 max-h-48 overflow-y-auto custom-scrollbar">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-96 overflow-y-auto custom-scrollbar">
           {task.aiAgentLog.map((entry) => (
-            <li
+            <div
               key={entry.id}
-              className="flex items-start gap-3 px-4 py-2.5 text-sm"
+              className="px-4 py-2.5 text-sm space-y-1.5"
               data-testid="agent-log-entry"
             >
-              <span className="text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap pt-0.5 min-w-[70px]">
-                {format(new Date(entry.timestamp), 'HH:mm:ss')}
-              </span>
-              <span className="font-medium text-slate-600 dark:text-slate-300 min-w-[80px]">
-                {t(`ai.agent.${entry.agent}`)}
-              </span>
-              <span className={`font-medium min-w-[64px] ${agentStatusColors[entry.status] ?? ''}`}>
-                {entry.status}
-              </span>
-              <span className="text-slate-600 dark:text-slate-400 flex-1">
-                {entry.message}
-              </span>
-            </li>
+              <div className="flex items-start gap-3">
+                <span className="text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap pt-0.5 min-w-[70px]">
+                  {format(new Date(entry.timestamp), 'HH:mm:ss')}
+                </span>
+                <span className="font-medium text-slate-600 dark:text-slate-300 min-w-[80px]">
+                  {t(`ai.agent.${entry.agent}`)}
+                </span>
+                <span className={`font-medium min-w-[64px] ${agentStatusColors[entry.status] ?? ''}`}>
+                  {entry.status}
+                </span>
+                <span className="text-slate-600 dark:text-slate-400 flex-1">
+                  {entry.message}
+                </span>
+              </div>
+
+              {/* Branch name — shown on developer completed */}
+              {entry.agent === 'developer' && entry.status === 'completed' && task.branchName && (
+                <div className="ms-[166px] flex items-center gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 font-mono">
+                  <GitBranch className="w-3.5 h-3.5 flex-shrink-0" />
+                  {task.branchName}
+                </div>
+              )}
+
+              {/* Changed files — shown on developer completed */}
+              {entry.agent === 'developer' && entry.status === 'completed' && task.changedFiles && task.changedFiles.length > 0 && (
+                <div className="ms-[166px] space-y-0.5">
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <FileCode className="w-3.5 h-3.5" />
+                    {t('ai.changedFiles')} ({task.changedFiles.length})
+                  </p>
+                  <ul className="space-y-0.5">
+                    {task.changedFiles.map((file) => (
+                      <li key={file} className="text-xs font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded px-2 py-0.5 truncate">
+                        {file}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

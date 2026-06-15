@@ -86,6 +86,7 @@ def get_task_status(task_id: str):
         enriched_title=state.enriched_title or None,
         enriched_description=state.enriched_description or None,
         acceptance_criteria=state.acceptance_criteria or None,
+        changed_files=state.changed_files,
     )
 
 

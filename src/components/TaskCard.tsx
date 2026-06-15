@@ -115,6 +115,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         if (data.branch_name) {
           updates.branchName = data.branch_name;
         }
+        if (data.changed_files?.length) {
+          updates.changedFiles = data.changed_files;
+        }
 
         // Auto-assign to the agent currently handling the task
         const activeAgent = STATUS_TO_AGENT[data.status as AiStatus];

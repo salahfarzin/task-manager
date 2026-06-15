@@ -83,8 +83,7 @@
     "agentLog": "Agent Log",
     "enrichedTitle": "AI-enriched title",
     "acceptanceCriteria": "Acceptance criteria",
-    "working": "working…",
-    "status": {
+    "working": "working…",    "changedFiles": "Changed files",    "status": {
       "idle": "Idle",
       "queued": "Queued",
       "enriching": "Enriching",

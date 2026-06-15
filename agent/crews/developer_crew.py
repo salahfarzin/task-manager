@@ -11,6 +11,7 @@ class DeveloperOutput(BaseModel):
     branch_name: str
     tests_pass: bool
     test_output: str
+    changed_files: list[str] = []
 
 
 class DeveloperCrew:
@@ -51,15 +52,16 @@ class DeveloperCrew:
                 "Implementation plan:\n{implementation_plan}\n\n"
                 "Acceptance criteria:\n{acceptance_criteria}\n\n"
                 "Steps:\n"
-                "1. Use create_git_branch to create branch feat/ai-{task_id}\n"
+                "1. Use create_git_branch to create branch {branch_name}\n"
                 "2. Use aider_coder with a clear instruction derived from the implementation plan\n"
                 "3. Use run_npm_tests to verify tests pass\n"
                 "4. If tests fail, call aider_coder again with the failure output to fix issues\n"
                 "5. Repeat steps 3-4 up to 2 more times if needed\n"
-                "6. Return branch_name, tests_pass, and test_output"
+                "6. Return branch_name, tests_pass, test_output, and changed_files (list of file paths modified)"
             ),
             expected_output=(
-                "A JSON object with branch_name (string), tests_pass (bool), test_output (string)"
+                "A JSON object with branch_name (string), tests_pass (bool), "
+                "test_output (string), changed_files (list of file path strings)"
             ),
             agent=developer,
             output_pydantic=DeveloperOutput,

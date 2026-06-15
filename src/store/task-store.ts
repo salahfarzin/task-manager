@@ -61,6 +61,7 @@ export interface Task {
     enrichedDescription?: string;
     acceptanceCriteria?: string;
     branchName?: string;
+    changedFiles?: string[];
 }
 
 export interface List {

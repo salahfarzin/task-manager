@@ -69,7 +69,8 @@
     "sendToAI": "An KI senden",
     "enrichedTitle": "KI-verbesserter Titel",
     "acceptanceCriteria": "Akzeptanzkriterien",
-    "working": "arbeitet…",
+    "working": "arbeitet...",
+    "changedFiles": "Geänderte Dateien",
     "agentLog": "Agenten-Protokoll",
     "status": {
       "idle": "Inaktiv",

@@ -57,6 +57,7 @@ class PipelineState(BaseModel):
     # Developer output
     branch_name: str = ""
     tests_pass: bool = False
+    changed_files: list[str] = Field(default_factory=list)
     implement_retries: int = 0
 
     # QA output
@@ -100,3 +101,4 @@ class StatusResponse(BaseModel):
     enriched_title: Optional[str] = None
     enriched_description: Optional[str] = None
     acceptance_criteria: Optional[str] = None
+    changed_files: list[str] = Field(default_factory=list)
