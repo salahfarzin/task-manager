@@ -25,3 +25,8 @@ coverage
 *.sw?
 
 .env
+# Python
+agent/venv/
+agent/__pycache__/
+agent/**/__pycache__/
+agent/*.egg-info/
