@@ -17,7 +17,22 @@ class DiffInput(BaseModel):
 
 
 def _worktree_path(repo: str, branch_name: str) -> str:
-    return os.path.join(repo, ".git", "worktrees-ai", branch_name)
+    """Return the filesystem path for a git worktree.
+
+    Worktrees are placed next to the repo, never inside .git:
+      {parent}/.worktrees-ai/{repo_name}/{safe_branch}
+
+    Branch name slashes are replaced with dashes so the branch name
+    becomes a valid single directory component.
+    """
+    safe_name = branch_name.replace("/", "-")
+    repo_abs = os.path.abspath(repo)
+    return os.path.join(
+        os.path.dirname(repo_abs),
+        ".worktrees-ai",
+        os.path.basename(repo_abs),
+        safe_name,
+    )
 
 
 class CreateBranchTool(BaseTool):

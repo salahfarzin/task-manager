@@ -12,6 +12,7 @@ from crews.po_crew import POCrew
 from crews.qa_crew import QACrew
 from crews.spec_crew import SpecCrew
 from models.task import AgentLogEntry, AiStatus, PipelineState
+from tools.git_tool import _worktree_path
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ class PipelineFlow(Flow[PipelineState]):
         new files, which `git diff HEAD` misses when aider runs with --no-git.
         """
         repo = self._resolve_repo_path()
-        worktree = os.path.join(repo, ".git", "worktrees-ai", branch_name)
+        worktree = _worktree_path(repo, branch_name)
 
         if os.path.isdir(worktree):
             result = subprocess.run(
@@ -175,7 +176,7 @@ class PipelineFlow(Flow[PipelineState]):
         self.state.implement_retries += 1
 
         # Warn when the developer agent skipped tool calls (LLM hallucinated the output)
-        worktree = os.path.join(repo, ".git", "worktrees-ai", branch)
+        worktree = _worktree_path(repo, branch)
         if not os.path.isdir(worktree):
             _log(
                 self.state,
