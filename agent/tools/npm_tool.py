@@ -19,6 +19,7 @@ reinstalling packages.
 """
 import json
 import os
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Type
@@ -179,6 +180,66 @@ def _detect_test_command(cwd: str) -> list[str] | None:
     return None
 
 
+def _uses_docker_compose_exec(cwd: str) -> bool:
+    """Return True if the Makefile's test target uses 'docker compose exec'."""
+    makefile = os.path.join(cwd, "Makefile")
+    if not os.path.isfile(makefile):
+        return False
+    try:
+        return "docker compose exec" in Path(makefile).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+
+
+# Files produced by aider itself — never sync these to the main repo.
+_AIDER_ARTIFACTS = {".aider.chat.history.md", ".aider.input.history"}
+
+
+def _sync_worktree_to_main(worktree: str, main_repo: str) -> list[str]:
+    """Copy files changed/added in the worktree (vs HEAD) to the main repo.
+
+    The running Docker container mounts the main repo, not the worktree.
+    Syncing ensures the container sees the code aider wrote before tests run.
+    Skips aider history files and .git artifacts.
+    Returns a list of relative file paths that were copied.
+    """
+    # Tracked files modified by aider (--no-git means nothing is committed)
+    diff = subprocess.run(
+        ["git", "diff", "HEAD", "--name-only"],
+        cwd=worktree, capture_output=True, text=True,
+    )
+    # Untracked new files aider may have created
+    untracked = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard"],
+        cwd=worktree, capture_output=True, text=True,
+    )
+
+    candidates = (
+        diff.stdout.strip().splitlines()
+        + untracked.stdout.strip().splitlines()
+    )
+
+    synced: list[str] = []
+    for rel_path in candidates:
+        if not rel_path:
+            continue
+        filename = os.path.basename(rel_path)
+        if filename in _AIDER_ARTIFACTS or rel_path.startswith(".git"):
+            continue
+        src = os.path.join(worktree, rel_path)
+        dst = os.path.join(main_repo, rel_path)
+        if not os.path.isfile(src):
+            continue
+        try:
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(src, dst)
+            synced.append(rel_path)
+        except OSError:
+            pass
+
+    return synced
+
+
 class NpmTestTool(BaseTool):
     """Runs the project test suite in the branch worktree.
 
@@ -225,14 +286,38 @@ class NpmTestTool(BaseTool):
                     "or set a custom test command in Board Settings → Test Command."
                 )
 
+        # Docker Compose projects: the running containers mount the MAIN REPO,
+        # not the worktree.  We must sync aider's changes there before running
+        # `docker compose exec`, and set COMPOSE_PROJECT_NAME so docker compose
+        # can find the containers started from the main repo directory.
+        run_cwd = cwd
+        run_env = None
+        sync_note = ""
+        if cwd != repo and _uses_docker_compose_exec(cwd):
+            synced = _sync_worktree_to_main(cwd, repo)
+            project_name = os.path.basename(os.path.abspath(repo))
+            run_env = {**os.environ, "COMPOSE_PROJECT_NAME": project_name}
+            run_cwd = repo
+            sync_note = (
+                f"[Synced {len(synced)} file(s) to main repo for Docker: "
+                + ", ".join(synced[:5])
+                + ("..." if len(synced) > 5 else "")
+                + f"]\n[COMPOSE_PROJECT_NAME={project_name}]\n"
+            )
+            progress.set_step(
+                self.task_id,
+                f"Running tests (docker, synced {len(synced)} file(s))...",
+            )
+
         result = subprocess.run(
             cmd,
-            cwd=cwd,
+            cwd=run_cwd,
+            env=run_env,
             capture_output=True,
             text=True,
             timeout=300,
         )
         combined = result.stdout + result.stderr
         tail = combined[-4000:] if len(combined) > 4000 else combined
-        return f"Exit code: {result.returncode}\n{tail}"
+        return f"{sync_note}Exit code: {result.returncode}\n{tail}"
 
