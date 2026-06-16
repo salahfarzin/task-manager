@@ -8,6 +8,22 @@ interface AgentLogPanelProps {
   task: Task;
 }
 
+/** Parse entries encoded as "M src/foo.py" → { status, path } */
+function parseFileEntry(entry: string): { status: string; path: string } {
+  const spaceIdx = entry.indexOf(' ');
+  if (spaceIdx === 1 && /^[AMDR?]$/.test(entry[0])) {
+    return { status: entry[0], path: entry.slice(2) };
+  }
+  return { status: 'M', path: entry };
+}
+
+const FILE_STATUS_STYLES: Record<string, { label: string; cls: string }> = {
+  A: { label: 'A', cls: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' },
+  M: { label: 'M', cls: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' },
+  D: { label: 'D', cls: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' },
+  R: { label: 'R', cls: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300' },
+};
+
 export const AgentLogPanel: React.FC<AgentLogPanelProps> = ({ task }) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -77,19 +93,24 @@ export const AgentLogPanel: React.FC<AgentLogPanelProps> = ({ task }) => {
                 </div>
               )}
 
-              {/* Changed files — shown on developer completed */}
-              {entry.agent === 'developer' && entry.status === 'completed' && task.changedFiles && task.changedFiles.length > 0 && (
+              {/* Changed files — shown on developer completed OR failed */}
+              {entry.agent === 'developer' && (entry.status === 'completed' || entry.status === 'failed') && task.changedFiles && task.changedFiles.length > 0 && (
                 <div className="ms-[166px] space-y-0.5">
                   <p className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
                     <FileCode className="w-3.5 h-3.5" />
                     {t('ai.changedFiles')} ({task.changedFiles.length})
                   </p>
                   <ul className="space-y-0.5">
-                    {task.changedFiles.map((file) => (
-                      <li key={file} className="text-xs font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded px-2 py-0.5 truncate">
-                        {file}
-                      </li>
-                    ))}
+                    {task.changedFiles.map((file) => {
+                      const { status, path } = parseFileEntry(file);
+                      const badge = FILE_STATUS_STYLES[status] ?? FILE_STATUS_STYLES['M'];
+                      return (
+                        <li key={file} className="flex items-center gap-1.5 text-xs font-mono text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded px-2 py-0.5">
+                          <span className={`shrink-0 rounded px-1 font-bold text-[10px] leading-4 ${badge.cls}`}>{badge.label}</span>
+                          <span className="truncate">{path}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}

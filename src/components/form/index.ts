@@ -16,3 +16,6 @@ export { RepoPathInput } from './RepoPathInput';
 export type { RepoPathInputProps } from './RepoPathInput';
 
 export { FileUpload } from './FileUpload';
+
+export { Spinner } from '@/components/Spinner';
+export type { SpinnerProps, SpinnerSize } from '@/components/Spinner';

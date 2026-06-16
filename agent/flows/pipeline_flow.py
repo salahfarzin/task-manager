@@ -16,6 +16,32 @@ from models.task import AgentLogEntry, AiStatus, PipelineState
 logger = logging.getLogger(__name__)
 
 
+def _porcelain_status(xy: str) -> str:
+    """Map a git porcelain XY code to a single A/M/D/R status letter."""
+    if xy == "??":
+        return "A"
+    if "D" in xy:
+        return "D"
+    if "R" in xy or "C" in xy:
+        return "R"
+    if "A" in xy:
+        return "A"
+    return "M"
+
+
+def _parse_porcelain_line(raw: str) -> tuple[str, str] | None:
+    """Return (status, path) from a `git status --porcelain` line, or None."""
+    if len(raw) < 3:
+        return None
+    xy = raw[:2]
+    path = raw[3:].strip()
+    if not path:
+        return None
+    if " -> " in path:
+        path = path.split(" -> ")[-1]
+    return _porcelain_status(xy), path
+
+
 def _log(state: PipelineState, agent: str, status: str, message: str) -> None:
     state.log.append(AgentLogEntry(agent=agent, status=status, message=message))
     logger.info("[%s] %s — %s: %s", state.task_id, agent, status, message)
@@ -52,30 +78,34 @@ class PipelineFlow(Flow[PipelineState]):
         return f"feat/{self.state.task_id}-{slug}"
 
     def _get_changed_files(self, branch_name: str) -> list[str]:
-        """Return files modified by the developer.
+        """Return files modified by the developer, encoded as 'STATUS path'.
 
-        Aider runs with --no-git so changes are uncommitted inside the worktree.
-        We first check the worktree working-tree diff (uncommitted); fall back to
-        a branch diff for the case where aider committed its own changes.
+        Status codes: A (added/new), M (modified), D (deleted), R (renamed).
+        Uses `git status --porcelain` to capture ALL changes including untracked
+        new files, which `git diff HEAD` misses when aider runs with --no-git.
         """
         repo = self._resolve_repo_path()
         worktree = os.path.join(repo, ".git", "worktrees-ai", branch_name)
 
-        # Primary: uncommitted changes inside the worktree (aider --no-git)
         if os.path.isdir(worktree):
             result = subprocess.run(
-                ["git", "diff", "--name-only", "HEAD"],
+                ["git", "status", "--porcelain"],
                 cwd=worktree,
                 capture_output=True,
                 text=True,
             )
-            files = [f.strip() for f in result.stdout.strip().splitlines() if f.strip()]
+            files = [
+                f"{status} {path}"
+                for raw in result.stdout.splitlines()
+                if (parsed := _parse_porcelain_line(raw)) is not None
+                for status, path in [parsed]
+            ]
             if files:
                 return files
 
-        # Fallback: committed diff between branches
+        # Fallback: committed diff (e.g. aider used --git mode)
         result = subprocess.run(
-            ["git", "diff", "--name-only", f"HEAD...{branch_name}"],
+            ["git", "diff", "--name-status", f"HEAD...{branch_name}"],
             cwd=repo,
             capture_output=True,
             text=True,
@@ -83,7 +113,11 @@ class PipelineFlow(Flow[PipelineState]):
         if result.returncode != 0:
             logger.warning("git diff failed for branch %s: %s", branch_name, result.stderr)
             return []
-        return [f.strip() for f in result.stdout.strip().splitlines() if f.strip()]
+        return [
+            f"{parts[0][0]} {parts[1].strip()}"
+            for line in result.stdout.strip().splitlines()
+            if len(parts := line.split("\t", 1)) == 2
+        ]
 
     @start()
     def step_enrich(self) -> None:

@@ -105,9 +105,24 @@ export const AiPipelineResults: React.FC<AiPipelineResultsProps> = ({ task }) =>
                     <FileCode className="w-3.5 h-3.5" />{t('ai.changedFiles')} ({task.changedFiles.length})
                   </p>
                   <div className="space-y-1">
-                    {task.changedFiles.map((f) => (
-                      <div key={f} className="text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded px-2 py-0.5 truncate">{f}</div>
-                    ))}
+                    {task.changedFiles.map((f) => {
+                      const spaceIdx = f.indexOf(' ');
+                      const hasStatus = spaceIdx === 1 && /^[AMDR]$/.test(f[0]);
+                      const status = hasStatus ? f[0] : 'M';
+                      const path = hasStatus ? f.slice(2) : f;
+                      const badgeStyles: Record<string, string> = {
+                        A: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300',
+                        M: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300',
+                        D: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300',
+                        R: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300',
+                      };
+                      return (
+                        <div key={f} className="flex items-center gap-1.5 text-xs font-mono text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 rounded px-2 py-0.5">
+                          <span className={`shrink-0 rounded px-1 font-bold text-[10px] leading-4 ${badgeStyles[status] ?? badgeStyles['M']}`}>{status}</span>
+                          <span className="truncate">{path}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

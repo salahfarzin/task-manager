@@ -1,10 +1,9 @@
 """
 Centralised logging configuration.
 
-Produces three log destinations:
-  - Console   : INFO and above (keeps terminal readable)
-  - app-YYYY-MM-DD.log   : LOG_LEVEL and above — live file already carries today's date
-  - error-YYYY-MM-DD.log : ERROR and above only, always on
+Produces two log destinations:
+  - Console          : INFO and above (keeps terminal readable)
+  - app-YYYY-MM-DD.log : LOG_LEVEL and above, daily rotation, 30-day retention
 
 Rotation happens at midnight: the handler closes the old file and opens a new one
 named with the new date. Files older than 30 days are deleted automatically.
@@ -84,7 +83,7 @@ def configure_logging(
         log_dir:   Directory for log files. Relative paths are resolved from
                    the agent package root. Defaults to storage/logs.
         log_level: Standard level name (DEBUG/INFO/WARNING/ERROR).
-                   Controls app-*.log verbosity. error-*.log is always ERROR+.
+                   Controls app-*.log verbosity.
     """
     if log_dir is None:
         log_dir = Path(__file__).parent / "storage" / "logs"
@@ -102,8 +101,7 @@ def configure_logging(
     )
 
     root = logging.getLogger()
-    # Root must sit at the lowest requested level so all handlers filter freely.
-    root.setLevel(min(numeric_level, logging.ERROR))
+    root.setLevel(numeric_level)
 
     existing_stems = {
         getattr(h, "_stem", None)
@@ -111,13 +109,9 @@ def configure_logging(
         if isinstance(h, DailyFileHandler)
     }
 
-    # --- app-YYYY-MM-DD.log : level-based (INFO by default) --------------
+    # --- app-YYYY-MM-DD.log : single file for everything at LOG_LEVEL+ ---
     if "app" not in existing_stems:
         root.addHandler(DailyFileHandler(log_dir, "app", numeric_level, fmt))
-
-    # --- error-YYYY-MM-DD.log : ERROR and above, always ------------------
-    if "error" not in existing_stems:
-        root.addHandler(DailyFileHandler(log_dir, "error", logging.ERROR, fmt))
 
     # --- Console : INFO and above (never noisier than INFO) --------------
     has_console = any(

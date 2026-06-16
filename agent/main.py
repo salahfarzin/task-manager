@@ -1,8 +1,11 @@
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Annotated
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
@@ -98,6 +101,43 @@ def get_task_status(task_id: str):
         qa_feedback=state.qa_feedback or None,
         po_feedback=state.po_feedback or None,
     )
+
+
+@app.get("/api/resolve-path")
+def resolve_path(name: Annotated[str, Query(min_length=1, max_length=200)]):
+    """
+    Given a folder name, search common directories on the server filesystem
+    and return the first matching absolute path.  Used by the Browse button
+    in the frontend to recover the full path that the browser cannot provide.
+    """
+    home = Path(os.path.expanduser("~"))
+
+    search_roots: list[Path] = [
+        home,
+        home / "projects",
+        home / "code",
+        home / "dev",
+        home / "workspace",
+        home / "git",
+        home / "repos",
+        home / "work",
+        home / "src",
+        home / "Documents",
+        home / "Desktop",
+    ]
+
+    # Also probe the parent of the configured default repo_path, if set.
+    if settings.repo_path:
+        parent = Path(settings.repo_path).parent
+        if parent not in search_roots:
+            search_roots.append(parent)
+
+    for root in search_roots:
+        candidate = root / name
+        if candidate.is_dir():
+            return {"path": str(candidate), "found": True}
+
+    return {"path": None, "found": False}
 
 
 @app.get("/health")

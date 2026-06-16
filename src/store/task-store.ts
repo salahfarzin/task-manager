@@ -134,8 +134,8 @@ export const useTaskStore = create<TaskStore>((set) => ({
                     tasks: [
                         {
                             id: 'task-1',
-                            title: 'Welcome to Task Manager',
-                            description: '<p>This is a demo task. Click to edit!</p><p>You can:</p><ul><li>Add rich text descriptions</li><li>Upload attachments</li><li>Add tags</li><li>Mention team members</li></ul>',
+                            title: 'Implement audit logging for psychometrist system',
+                            description: 'I wanna to have audit logs of the system for psychometirst by event sourcing through kafka, kafka already is in place just we need to emit update e.g. before, after and so Consider best practices while development that align with idiomatic ways',
                             tags: ['welcome', 'demo'],
                             mentions: [],
                             attachments: [],
