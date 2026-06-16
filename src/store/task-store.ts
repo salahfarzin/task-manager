@@ -56,6 +56,7 @@ export interface Task {
     assignee?: string;
     aiStatus?: AiStatus;
     aiAgentLog?: AgentLogEntry[];
+    stepMessage?: string;
     // Fields written back from the agent pipeline
     enrichedTitle?: string;
     enrichedDescription?: string;

@@ -26,6 +26,7 @@ from typing import Type
 from crewai.tools import BaseTool
 from pydantic import BaseModel
 
+import progress
 from config import settings
 from tools.git_tool import _worktree_path
 
@@ -200,8 +201,10 @@ class NpmTestTool(BaseTool):
     args_schema: Type[BaseModel] = NpmTestInput
     repo_path: str = ""
     test_command: str = ""  # Optional override, e.g. "make tests" or "npm run test:ci"
+    task_id: str = ""
 
     def _run(self, branch_name: str = "") -> str:
+        progress.set_step(self.task_id, "Running tests...")
         repo = self.repo_path or settings.repo_path
         cwd = _worktree_path(repo, branch_name) if branch_name else repo
 

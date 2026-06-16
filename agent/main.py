@@ -8,6 +8,7 @@ from typing import Annotated
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
+import progress
 from config import settings
 from flows.pipeline_flow import PipelineFlow
 from logging_config import configure_logging
@@ -56,6 +57,8 @@ async def _run_pipeline(state: PipelineState) -> None:
         current.status = AiStatus.rejected
         current.error = str(exc)
         _states[state.task_id] = current
+    finally:
+        progress.clear(state.task_id)
 
 
 @app.post("/api/tasks/{task_id}/process", status_code=202)
@@ -93,6 +96,7 @@ def get_task_status(task_id: str):
     return StatusResponse(
         task_id=state.task_id,
         status=state.status,
+        step_message=progress.get_step(state.task_id) or None,
         log=state.log,
         error=state.error,
         branch_name=state.branch_name or None,

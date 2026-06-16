@@ -5,6 +5,7 @@ from typing import Type
 from crewai.tools import BaseTool
 from pydantic import BaseModel
 
+import progress
 from config import settings
 
 
@@ -45,8 +46,10 @@ class CreateBranchTool(BaseTool):
     )
     args_schema: Type[BaseModel] = BranchInput
     repo_path: str = ""
+    task_id: str = ""
 
     def _run(self, branch_name: str) -> str:
+        progress.set_step(self.task_id, f"Creating branch: {branch_name}")
         repo = self.repo_path or settings.repo_path
         worktree = _worktree_path(repo, branch_name)
 

@@ -110,6 +110,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         const updates: Parameters<typeof updateTask>[1] = {
           aiStatus: data.status,
           aiAgentLog: log,
+          stepMessage: data.step_message ?? undefined,
         };
 
         if (data.enriched_title) {
@@ -267,7 +268,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           </div>
 
           {task.aiStatus && task.aiStatus !== 'idle' && (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in space-y-1">
               <span
                 className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${getAiStatusStyle(task.aiStatus)}`}
                 data-testid="ai-status-badge"
@@ -275,6 +276,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                 <Bot className="w-3 h-3" />
                 {t(`ai.status.${task.aiStatus}`)}
               </span>
+              {task.stepMessage && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 pl-0.5 truncate" title={task.stepMessage}>
+                  {task.stepMessage}
+                </p>
+              )}
             </div>
           )}
 

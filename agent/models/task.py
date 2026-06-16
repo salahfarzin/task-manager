@@ -76,6 +76,7 @@ class PipelineState(BaseModel):
 
     # Pipeline tracking
     status: AiStatus = AiStatus.queued
+    step_message: str = ""  # live progress message (populated by tools)
     log: list[AgentLogEntry] = Field(default_factory=list)
     error: Optional[str] = None
 
@@ -95,6 +96,7 @@ class ProcessRequest(BaseModel):
 class StatusResponse(BaseModel):
     task_id: str
     status: AiStatus
+    step_message: Optional[str] = None
     log: list[AgentLogEntry]
     error: Optional[str] = None
     branch_name: Optional[str] = None

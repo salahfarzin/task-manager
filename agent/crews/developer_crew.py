@@ -23,10 +23,10 @@ class DeveloperCrew:
 
     def crew(self) -> Crew:
         repo = self._repo_path
-        branch_tool = CreateBranchTool(repo_path=repo)
-        aider_tool = AiderTool(repo_path=repo)
-        test_tool = NpmTestTool(repo_path=repo, test_command=self._test_command)
-        context_tool = SetupAiContextTool(repo_path=repo)
+        branch_tool = CreateBranchTool(repo_path=repo, task_id=self.task_id)
+        aider_tool = AiderTool(repo_path=repo, task_id=self.task_id)
+        test_tool = NpmTestTool(repo_path=repo, test_command=self._test_command, task_id=self.task_id)
+        context_tool = SetupAiContextTool(repo_path=repo, task_id=self.task_id)
 
         developer = Agent(
             role=self._override.get("role", "Senior Software Developer"),
@@ -64,8 +64,11 @@ class DeveloperCrew:
                 "1. Call create_git_branch with branch_name={branch_name}.\n"
                 "   If it says 'already exists — reusing', the branch has previous work — do NOT redo the full implementation.\n"
                 "2. Call setup_ai_context with branch_name={branch_name}.\n"
-                "   This creates CLAUDE.md and .github/copilot-instructions.md if they are absent.\n"
-                "   It is safe to call every time — existing files are never overwritten.\n"
+                "   READ the returned context carefully before writing any code — it tells\n"
+                "   you the tech stack, Docker services, and how to run tests (e.g. make tests).\n"
+                "   If Docker Compose services are listed, runtimes like PHP/Node/Python\n"
+                "   run INSIDE containers — never call them directly on the host.\n"
+                "   Existing files are never overwritten, so it is safe to call every time.\n"
                 "3. If {is_retry} is True and {previous_test_output} is non-empty:\n"
                 "   - Run run_npm_tests first to see the current state\n"
                 "   - Then call aider_coder with ONLY the targeted fix for the failures shown in:\n"
