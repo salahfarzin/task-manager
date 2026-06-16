@@ -46,6 +46,8 @@ class PipelineState(BaseModel):
     description: str = ""
     tags: list[str] = Field(default_factory=list)
     repo_path: Optional[str] = None
+    branch_max_length: int = 128
+    test_command: str = ""
     microservices: list[MicroserviceInfo] = Field(default_factory=list)
     agent_configs: list[AgentOverride] = Field(default_factory=list)
 
@@ -60,6 +62,7 @@ class PipelineState(BaseModel):
     # Developer output
     branch_name: str = ""
     tests_pass: bool = False
+    test_output: str = ""
     changed_files: list[str] = Field(default_factory=list)
     implement_retries: int = 0
 
@@ -83,6 +86,8 @@ class ProcessRequest(BaseModel):
     description: str
     tags: list[str] = Field(default_factory=list)
     repo_path: Optional[str] = None
+    branch_max_length: int = Field(default=128, ge=20, le=255)
+    test_command: str = ""
     microservices: list[MicroserviceInfo] = Field(default_factory=list)
     agent_configs: list[AgentOverride] = Field(default_factory=list)
 

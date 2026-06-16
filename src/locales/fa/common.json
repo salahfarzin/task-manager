@@ -14,7 +14,24 @@
       "placeholder": "نام تخته..."
     },
     "select": "انتخاب تخته",
-    "notFound": "تخته پیدا نشد"
+    "notFound": "تخته پیدا نشد",
+    "settings": {
+      "title": "تنظیمات تخته",
+      "repoPath": "مخزن",
+      "repoPathHint": "آدرس GitHub (github.com/user/repo) یا مسیر محلی مطلق (/Users/you/projects/app). عوامل هوش مصنوعی برای کلون یا کار روی کد از این استفاده می‌کنند.",
+      "agentUrl": "آدرس سرویس عامل",
+      "agentUrlHint": "آدرس میکروسرویس هوش مصنوعی که وظایف این تخته را پردازش می‌کند.",
+      "branchMaxLength": "حداکثر طول نام شاخه",
+      "branchMaxLengthHint": "حداکثر کاراکتر برای نام شاخه git تولیدشده (۲۰–۲۵۵). پیش‌فرض: ۱۲۸.",
+      "testCommand": "دستور تست",
+      "testCommandHint": "بازنویسی اجراکننده تست شناسایی‌شده خودکار (مثلاً make tests، npm run test:ci). برای تشخیص خودکار خالی بگذارید.",
+      "microservices": "میکروسرویس‌های مرتبط",
+      "addMicroservice": "افزودن سرویس",
+      "noMicroservices": "هیچ میکروسرویسی هنوز تنظیم نشده است.",
+      "removeMicroservice": "حذف سرویس",
+      "msName": "نام سرویس",
+      "msDescription": "توضیحات کوتاه (اختیاری)"
+    }
   },
   "task": {
     "title": "عنوان وظیفه",

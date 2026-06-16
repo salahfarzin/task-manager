@@ -127,6 +127,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
         data-testid="task-edit-modal"
         className="relative glass w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl animate-scale-in"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">

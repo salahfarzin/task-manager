@@ -15,6 +15,8 @@ const DEFAULT_SETTINGS: BoardSettings = {
     repoPath: '',
     agentUrl: CONFIGS.AGENT_URL,
     microservices: [],
+    branchMaxLength: 128,
+    testCommand: '',
 };
 
 export const BoardSettingsModal: React.FC<BoardSettingsModalProps> = ({ board, onClose }) => {
@@ -23,19 +25,27 @@ export const BoardSettingsModal: React.FC<BoardSettingsModalProps> = ({ board, o
 
     const [repoPath, setRepoPath] = useState(board.settings?.repoPath ?? DEFAULT_SETTINGS.repoPath);
     const [agentUrl, setAgentUrl] = useState(board.settings?.agentUrl ?? DEFAULT_SETTINGS.agentUrl);
+    const [branchMaxLength, setBranchMaxLength] = useState(
+        board.settings?.branchMaxLength ?? DEFAULT_SETTINGS.branchMaxLength
+    );
+    const [testCommand, setTestCommand] = useState(board.settings?.testCommand ?? DEFAULT_SETTINGS.testCommand);
     const [microservices, setMicroservices] = useState<Microservice[]>(
         board.settings?.microservices ?? DEFAULT_SETTINGS.microservices
     );
 
-    // Sync when board changes
+    // Sync when board changes (depends on board so exhaustive-deps is satisfied;
+    // typing only updates local state, not the store, so this won't reset mid-edit)
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setRepoPath(board.settings?.repoPath ?? DEFAULT_SETTINGS.repoPath);
         setAgentUrl(board.settings?.agentUrl ?? DEFAULT_SETTINGS.agentUrl);
+        setBranchMaxLength(board.settings?.branchMaxLength ?? DEFAULT_SETTINGS.branchMaxLength);
+        setTestCommand(board.settings?.testCommand ?? DEFAULT_SETTINGS.testCommand);
         setMicroservices(board.settings?.microservices ?? DEFAULT_SETTINGS.microservices);
-    }, [board.id]);
+    }, [board]);
 
     const handleSave = () => {
-        updateBoardSettings(board.id, { repoPath, agentUrl, microservices });
+        updateBoardSettings(board.id, { repoPath, agentUrl, microservices, branchMaxLength, testCommand });
         onClose();
     };
 
@@ -113,6 +123,36 @@ export const BoardSettingsModal: React.FC<BoardSettingsModalProps> = ({ board, o
                             value={agentUrl}
                             onChange={(e) => setAgentUrl(e.target.value)}
                             placeholder="http://localhost:8004"
+                            spellCheck={false}
+                        />
+                    </FormField>
+
+                    {/* Branch name max length */}
+                    <FormField
+                        label={t('board.settings.branchMaxLength')}
+                        hint={t('board.settings.branchMaxLengthHint')}
+                    >
+                        <Input
+                            type="number"
+                            className="w-28 font-mono text-sm"
+                            value={branchMaxLength}
+                            onChange={(e) => setBranchMaxLength(Math.max(20, Math.min(255, Number(e.target.value))))}
+                            min={20}
+                            max={255}
+                        />
+                    </FormField>
+
+                    {/* Test command */}
+                    <FormField
+                        label={t('board.settings.testCommand')}
+                        hint={t('board.settings.testCommandHint')}
+                    >
+                        <Input
+                            type="text"
+                            className="font-mono text-sm"
+                            value={testCommand}
+                            onChange={(e) => setTestCommand(e.target.value)}
+                            placeholder="composer test"
                             spellCheck={false}
                         />
                     </FormField>

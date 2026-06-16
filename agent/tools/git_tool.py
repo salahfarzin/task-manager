@@ -53,9 +53,16 @@ class CreateBranchTool(BaseTool):
         if not os.path.isdir(repo):
             return f"Error: repo_path '{repo}' does not exist on disk."
 
-        # Remove stale worktree if it exists
+        # Reuse the existing worktree — a valid worktree always has a .git *file*
+        # (not directory) at its root pointing back to the main repo.
+        # Returning early here preserves any work already done by aider on retries.
+        if os.path.isdir(worktree) and os.path.isfile(os.path.join(worktree, ".git")):
+            return f"Worktree already exists at {worktree} on branch '{branch_name}' — reusing."
+
+        # Stale directory without a valid .git file — prune and clean up before recreating.
         if os.path.exists(worktree):
-            subprocess.run(["git", "worktree", "remove", "--force", worktree], cwd=repo)
+            subprocess.run(["git", "worktree", "prune"], cwd=repo, capture_output=True)
+            subprocess.run(["git", "worktree", "remove", "--force", worktree], cwd=repo, capture_output=True)
 
         os.makedirs(os.path.dirname(worktree), exist_ok=True)
 

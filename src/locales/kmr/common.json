@@ -14,7 +14,24 @@
       "placeholder": "Navê tabloyê..."
     },
     "select": "Tabloyê Hilbijêre",
-    "notFound": "Tablo nehate dîtin"
+    "notFound": "Tablo nehate dîtin",
+    "settings": {
+      "title": "Mîhengên Tabloyê",
+      "repoPath": "Depoya",
+      "repoPathHint": "URL-eke GitHub (github.com/user/repo) an rêça herêmî ya bêkêmasî (/Users/you/projects/app). Ajanan ev ji bo klonkirin an xebata li ser kodê bikar tînin.",
+      "agentUrl": "URL-a Servîsa Ajanê",
+      "agentUrlHint": "URL-a mîkroservîsa AI ya ku karên vê tabloyê pêk tîne.",
+      "branchMaxLength": "Dirêjahiya Herî Zêde ya Navê Şaxê",
+      "branchMaxLengthHint": "Herî zêde tîp ji bo navê şaxa git-a hatî çêkirin (20–255). Xwerû: 128.",
+      "testCommand": "Fermana Testê",
+      "testCommandHint": "Dawrûpêşiya rêvebiriya testê ya xwexweber digire (mînak make tests, npm run test:ci, go test ./..., python -m pytest). Ji bo xwexweber-nasîna cûreyê projeyê vala bihêle.",
+      "microservices": "Mîkroservîsên Têkildar",
+      "addMicroservice": "Servîsê Zêde Bike",
+      "noMicroservices": "Hîn mîkroservîsek nehatiye mîhengkirin.",
+      "removeMicroservice": "Servîsê Jê Bibe",
+      "msName": "Navê servîsê",
+      "msDescription": "Danasîna kurt (bijarte)"
+    }
   },
   "task": {
     "title": "Sernavê Karê",

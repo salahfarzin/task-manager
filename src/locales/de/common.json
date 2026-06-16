@@ -14,7 +14,24 @@
       "placeholder": "Board-Name..."
     },
     "select": "Board auswählen",
-    "notFound": "Board nicht gefunden"
+    "notFound": "Board nicht gefunden",
+    "settings": {
+      "title": "Board-Einstellungen",
+      "repoPath": "Repository",
+      "repoPathHint": "Eine GitHub-URL (github.com/user/repo) oder ein absoluter lokaler Pfad (/Users/you/projects/app). Agents nutzen dies zum Klonen oder Bearbeiten des Codes.",
+      "agentUrl": "Agent-Service-URL",
+      "agentUrlHint": "URL des KI-Microservices, der Aufgaben für dieses Board verarbeitet.",
+      "branchMaxLength": "Maximale Länge des Branch-Namens",
+      "branchMaxLengthHint": "Maximale Zeichen für den generierten Git-Branch-Namen (20–255). Standard: 128.",
+      "testCommand": "Testbefehl",
+      "testCommandHint": "Überschreibt den automatisch erkannten Test-Runner (z.B. make tests, npm run test:ci, go test ./..., python -m pytest). Leer lassen für automatische Erkennung.",
+      "microservices": "Zugehörige Microservices",
+      "addMicroservice": "Service hinzufügen",
+      "noMicroservices": "Noch keine Microservices konfiguriert.",
+      "removeMicroservice": "Service entfernen",
+      "msName": "Service-Name",
+      "msDescription": "Kurze Beschreibung (optional)"
+    }
   },
   "task": {
     "title": "Aufgabentitel",

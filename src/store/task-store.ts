@@ -86,6 +86,8 @@ export interface BoardSettings {
     repoPath: string;
     agentUrl: string;
     microservices: Microservice[];
+    branchMaxLength: number;
+    testCommand: string;
 }
 
 export interface Board {

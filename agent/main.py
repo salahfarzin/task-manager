@@ -74,6 +74,8 @@ async def process_task(
         description=body.description,
         tags=body.tags,
         repo_path=body.repo_path,
+        branch_max_length=body.branch_max_length,
+        test_command=body.test_command,
         microservices=body.microservices,
         agent_configs=body.agent_configs,
     )

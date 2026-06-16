@@ -14,7 +14,24 @@
       "placeholder": "Nom du tableau..."
     },
     "select": "Sélectionner un tableau",
-    "notFound": "Tableau introuvable"
+    "notFound": "Tableau introuvable",
+    "settings": {
+      "title": "Paramètres du tableau",
+      "repoPath": "Dépôt",
+      "repoPathHint": "Une URL GitHub (github.com/user/repo) ou un chemin local absolu (/Users/you/projects/app). Les agents utilisent ceci pour cloner le code ou travailler dessus.",
+      "agentUrl": "URL du service agent",
+      "agentUrlHint": "URL du microservice IA qui traite les tâches de ce tableau.",
+      "branchMaxLength": "Longueur maximale du nom de branche",
+      "branchMaxLengthHint": "Nombre maximum de caractères pour le nom de branche git généré (20–255). Défaut : 128.",
+      "testCommand": "Commande de test",
+      "testCommandHint": "Remplace le lanceur de tests détecté automatiquement (ex. make tests, npm run test:ci, go test ./..., python -m pytest). Laisser vide pour la détection automatique.",
+      "microservices": "Microservices associés",
+      "addMicroservice": "Ajouter un service",
+      "noMicroservices": "Aucun microservice configuré.",
+      "removeMicroservice": "Supprimer le service",
+      "msName": "Nom du service",
+      "msDescription": "Description courte (optionnel)"
+    }
   },
   "task": {
     "title": "Titre de la tâche",

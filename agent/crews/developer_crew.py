@@ -5,6 +5,7 @@ from config import settings
 from tools.aider_tool import AiderTool
 from tools.git_tool import CreateBranchTool
 from tools.npm_tool import NpmTestTool
+from tools.setup_ai_context_tool import SetupAiContextTool
 
 
 class DeveloperOutput(BaseModel):
@@ -14,16 +15,18 @@ class DeveloperOutput(BaseModel):
 
 
 class DeveloperCrew:
-    def __init__(self, task_id: str, override: dict | None = None, repo_path: str | None = None) -> None:
+    def __init__(self, task_id: str, override: dict | None = None, repo_path: str | None = None, test_command: str = "") -> None:
         self.task_id = task_id
         self._override = override or {}
         self._repo_path = repo_path or settings.repo_path
+        self._test_command = test_command
 
     def crew(self) -> Crew:
         repo = self._repo_path
         branch_tool = CreateBranchTool(repo_path=repo)
         aider_tool = AiderTool(repo_path=repo)
-        test_tool = NpmTestTool(repo_path=repo)
+        test_tool = NpmTestTool(repo_path=repo, test_command=self._test_command)
+        context_tool = SetupAiContextTool(repo_path=repo)
 
         developer = Agent(
             role=self._override.get("role", "Senior Software Developer"),
@@ -39,24 +42,39 @@ class DeveloperCrew:
                     "If tests fail, you iterate with Aider using the error output as context."
                 ),
             ),
-            tools=[branch_tool, aider_tool, test_tool],
+            tools=[branch_tool, aider_tool, test_tool, context_tool],
             llm=settings.llm_model,
             verbose=True,
         )
 
         task = Task(
             description=(
+                "CRITICAL RULES — you must never violate these:\n"
+                "- NEVER assess or check the environment before calling tools.\n"
+                "- NEVER refuse to act due to suspected missing runtimes (php, python, node, ruby, etc.).\n"
+                "- NEVER mention pyaudioop, audioop, or any Python internals.\n"
+                "- NEVER output 'Critical environment issues detected' or any pre-flight refusal.\n"
+                "- If a tool returns an error, record that error in test_output and set tests_pass=False.\n"
+                "- You MUST always call create_git_branch as your very first action. No exceptions.\n\n"
                 "Implement the following feature in the codebase.\n\n"
                 "Title: {title}\n"
                 "Implementation plan:\n{implementation_plan}\n\n"
                 "Acceptance criteria:\n{acceptance_criteria}\n\n"
                 "Steps:\n"
-                "1. Use create_git_branch to create branch {branch_name}\n"
-                "2. Use aider_coder with a clear instruction derived from the implementation plan\n"
-                "3. Use run_npm_tests to verify tests pass\n"
-                "4. If tests fail, call aider_coder again with the failure output to fix issues\n"
-                "5. Repeat steps 3-4 up to 2 more times if needed\n"
-                "6. Return branch_name ({branch_name}), tests_pass, and test_output"
+                "1. Call create_git_branch with branch_name={branch_name}.\n"
+                "   If it says 'already exists — reusing', the branch has previous work — do NOT redo the full implementation.\n"
+                "2. Call setup_ai_context with branch_name={branch_name}.\n"
+                "   This creates CLAUDE.md and .github/copilot-instructions.md if they are absent.\n"
+                "   It is safe to call every time — existing files are never overwritten.\n"
+                "3. If {is_retry} is True and {previous_test_output} is non-empty:\n"
+                "   - Run run_npm_tests first to see the current state\n"
+                "   - Then call aider_coder with ONLY the targeted fix for the failures shown in:\n"
+                "     {previous_test_output}\n"
+                "   Otherwise: use aider_coder with the full implementation plan.\n"
+                "4. Use run_npm_tests to verify tests pass\n"
+                "5. If tests fail, call aider_coder again with the failure output to fix issues\n"
+                "6. Repeat steps 4-5 up to 2 more times if needed\n"
+                "7. Return branch_name ({branch_name}), tests_pass, and test_output"
             ),
             expected_output=(
                 "A JSON object with branch_name (string, must equal {branch_name}), "

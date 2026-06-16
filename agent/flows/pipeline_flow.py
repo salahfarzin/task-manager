@@ -73,10 +73,17 @@ class PipelineFlow(Flow[PipelineState]):
         return settings.repo_path
 
     def _branch_name(self) -> str:
-        """Generate a deterministic branch name: feat/{task_id}-{title_slug}."""
+        """Generate a deterministic branch name: feat/{task_id}-{title_slug}.
+
+        The slug is capped so the total length stays within branch_max_length,
+        reserving room for the 'feat/' prefix and '{task_id}-' infix.
+        """
         title = self.state.enriched_title or self.state.title
-        slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:40]
-        return f"feat/{self.state.task_id}-{slug}"
+        max_len = max(20, self.state.branch_max_length)
+        prefix = f"feat/{self.state.task_id}-"
+        slug_max = max(1, max_len - len(prefix))
+        slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:slug_max]
+        return f"{prefix}{slug}"
 
     def _get_changed_files(self, branch_name: str) -> list[str]:
         """Return files modified by the developer, encoded as 'STATUS path'.
@@ -157,13 +164,15 @@ class PipelineFlow(Flow[PipelineState]):
         branch = self._branch_name()
         repo = self._resolve_repo_path()
 
-        result = DeveloperCrew(task_id=self.state.task_id, override=self._override("developer"), repo_path=repo).crew().kickoff(
+        result = DeveloperCrew(task_id=self.state.task_id, override=self._override("developer"), repo_path=repo, test_command=self.state.test_command).crew().kickoff(
             inputs={
                 "title": self.state.enriched_title,
                 "implementation_plan": self.state.implementation_plan,
                 "acceptance_criteria": self.state.acceptance_criteria,
                 "task_id": self.state.task_id,
                 "branch_name": branch,
+                "previous_test_output": self.state.test_output,
+                "is_retry": self.state.implement_retries > 0,
             }
         )
         output = result.pydantic
@@ -171,6 +180,7 @@ class PipelineFlow(Flow[PipelineState]):
         # Trust our own slug, not the LLM's text output
         self.state.branch_name = branch
         self.state.tests_pass = output.tests_pass
+        self.state.test_output = output.test_output or ""
         # Read actual changed files from git instead of relying on LLM self-reporting
         self.state.changed_files = self._get_changed_files(branch)
         self.state.implement_retries += 1
@@ -188,11 +198,16 @@ class PipelineFlow(Flow[PipelineState]):
             self.state.tests_pass = False
 
         log_status = "completed" if self.state.tests_pass else "failed"
+        msg = f"Branch: {self.state.branch_name} | Tests pass: {self.state.tests_pass}"
+        if not self.state.tests_pass and self.state.test_output:
+            # Append the last 400 chars of test output so the UI shows the actual failure
+            tail = self.state.test_output.strip()[-400:]
+            msg = f"{msg}\n{tail}"
         _log(
             self.state,
             "developer",
             log_status,
-            f"Branch: {self.state.branch_name} | Tests pass: {self.state.tests_pass}",
+            msg,
         )
 
     @router(step_implement)

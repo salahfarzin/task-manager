@@ -84,7 +84,16 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     const intervalId = setInterval(async () => {
       try {
         const res = await fetch(`${agentUrl}/api/tasks/${task.id}/status`);
+
+        // 404 means the agent restarted and lost its in-memory state.
+        // Stop polling and clear the status so the user can re-send.
+        if (res.status === 404) {
+          updateTask(task.id, { aiStatus: null });
+          return;
+        }
+
         if (!res.ok) {
+          // Transient server error — keep polling and try again next tick.
           return;
         }
         const data = await res.json();
@@ -155,6 +164,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           description: task.description,
           tags: task.tags,
           repo_path: currentBoard?.settings?.repoPath || undefined,
+          branch_max_length: currentBoard?.settings?.branchMaxLength ?? 128,
+          test_command: currentBoard?.settings?.testCommand ?? '',
           microservices: (currentBoard?.settings?.microservices ?? []).map((ms) => ({
             id: ms.id,
             name: ms.name,
