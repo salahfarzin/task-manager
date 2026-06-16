@@ -2,14 +2,15 @@
 
 Detection order (first match wins):
   1. Explicit override via ``test_command`` field on the tool instance
-  2. ``package.json`` with a ``test:ci`` script       → ``npm run test:ci``
-  3. ``package.json`` with a ``test`` script          → ``npm test``
-  4. ``vendor/bin/phpunit`` present                   → ``{abs_path}/vendor/bin/phpunit``
-  5. ``phpunit.xml`` / ``phpunit.xml.dist``           → same as above
-  6. ``go.mod``                                        → ``go test ./...``
-  7. ``pytest.ini`` / ``pyproject.toml`` / ``setup.py``/``setup.cfg`` → ``python -m pytest``
-  8. ``Cargo.toml``                                   → ``cargo test``
-  9. ``Makefile`` with ``test`` or ``tests`` target   → ``make test[s]``
+  2. ``Makefile`` with ``test`` or ``tests`` target  → ``make test[s]``
+     (checked first so Docker-wrapped test suites like Laravel/psychometrist work)
+  3. ``package.json`` with a ``test:ci`` script       → ``npm run test:ci``
+  4. ``package.json`` with a ``test`` script          → ``npm test``
+  5. ``vendor/bin/phpunit`` present                   → ``{abs_path}/vendor/bin/phpunit``
+  6. ``phpunit.xml`` / ``phpunit.xml.dist``           → same as above
+  7. ``go.mod``                                        → ``go test ./...``
+  8. ``pytest.ini`` / ``pyproject.toml`` / ``setup.py``/``setup.cfg`` → ``python -m pytest``
+  9. ``Cargo.toml``                                   → ``cargo test``
  10. Fallback: clear error message
 
 Dependency directories (vendor/, node_modules/, .venv/, venv/) are symlinked
@@ -66,8 +67,45 @@ def _ensure_dep_dirs(cwd: str, main_repo: str) -> None:
             pass
 
 
+def _makefile_test_target(cwd: str) -> list[str] | None:
+    """Return [make, <target>] if the Makefile defines a test/tests target, else None."""
+    makefile = os.path.join(cwd, "Makefile")
+    if not os.path.isfile(makefile):
+        return None
+    try:
+        content = Path(makefile).read_text(encoding="utf-8", errors="replace")
+        targets = {
+            line.split(":")[0].strip()
+            for line in content.splitlines()
+            if line and not line.startswith(("\t", " ")) and ":" in line
+        }
+        if "test" in targets:
+            return ["make", "test"]
+        if "tests" in targets:
+            return ["make", "tests"]
+    except OSError:
+        pass
+    return None
+
+
 def _detect_test_command(cwd: str) -> list[str] | None:
-    """Return the command list for the best matching test runner, or None."""
+    """Return the command list for the best matching test runner, or None.
+
+    Detection order (first match wins):
+      1. Makefile with ``test`` or ``tests`` target — preferred even for PHP/Node
+         projects because the Makefile is the project's canonical entrypoint and
+         may route through Docker or other wrappers not available on the host.
+      2. package.json ``test:ci`` / ``test`` script
+      3. vendor/bin/phpunit (or phpunit.xml config)
+      4. go.mod
+      5. pytest markers
+      6. Cargo.toml
+    """
+
+    # --- Makefile first: may wrap Docker/make for PHP, Node, etc. ---
+    make_cmd = _makefile_test_target(cwd)
+    if make_cmd:
+        return make_cmd
 
     # --- Node / npm ---
     pkg_path = os.path.join(cwd, "package.json")
@@ -114,23 +152,6 @@ def _detect_test_command(cwd: str) -> list[str] | None:
     # --- Rust / Cargo ---
     if os.path.isfile(os.path.join(cwd, "Cargo.toml")):
         return ["cargo", "test"]
-
-    # --- Makefile fallback ---
-    makefile = os.path.join(cwd, "Makefile")
-    if os.path.isfile(makefile):
-        try:
-            content = Path(makefile).read_text(encoding="utf-8", errors="replace")
-            targets = {
-                line.split(":")[0].strip()
-                for line in content.splitlines()
-                if line and not line.startswith(("\t", " ")) and ":" in line
-            }
-            if "test" in targets:
-                return ["make", "test"]
-            if "tests" in targets:
-                return ["make", "tests"]
-        except OSError:
-            pass
 
     return None
 
