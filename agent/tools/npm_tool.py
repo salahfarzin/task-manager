@@ -38,19 +38,27 @@ _DEP_DIRS = [
     "venv",          # Python virtualenv (plain style)
 ]
 
+# Gitignored files (not directories) to symlink into the worktree.
+# .env is critical for Docker Compose: it provides variable substitution
+# (${NETWORK}, ${SITE_URL}, etc.) and the COMPOSE_PROJECT_NAME so that
+# `docker compose exec` can find the containers started from the main repo.
+_DEP_FILES = [
+    ".env",
+]
+
 
 class NpmTestInput(BaseModel):
     branch_name: str = ""
 
 
 def _ensure_dep_dirs(cwd: str, main_repo: str) -> None:
-    """Symlink common dependency directories from main_repo into the worktree.
+    """Symlink gitignored dirs and files from main_repo into the worktree.
 
-    Git worktrees share the commit history but not untracked/gitignored files.
-    Symlinking avoids reinstalling packages (composer install, npm ci, etc.)
-    while making them visible to the test runner in the worktree.
+    Git worktrees share commit history but not untracked/gitignored files.
+    Symlinking avoids reinstalling packages and ensures Docker Compose finds
+    the right environment and project when run from the worktree directory.
 
-    Skips any dir that already exists in the worktree.
+    Skips any item that already exists in the worktree.
     """
     for dep_dir in _DEP_DIRS:
         target_in_worktree = os.path.join(cwd, dep_dir)
@@ -59,6 +67,20 @@ def _ensure_dep_dirs(cwd: str, main_repo: str) -> None:
         if os.path.exists(target_in_worktree):
             continue
         if not os.path.isdir(source_in_repo):
+            continue
+
+        try:
+            os.symlink(source_in_repo, target_in_worktree)
+        except OSError:
+            pass
+
+    for dep_file in _DEP_FILES:
+        target_in_worktree = os.path.join(cwd, dep_file)
+        source_in_repo = os.path.join(main_repo, dep_file)
+
+        if os.path.exists(target_in_worktree):
+            continue
+        if not os.path.isfile(source_in_repo):
             continue
 
         try:
