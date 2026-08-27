@@ -5,7 +5,9 @@ import { format } from 'date-fns';
 import type { Task } from '../store/task-store';
 import { useTaskStore } from '../store/task-store';
 import { RichTextEditor } from './RichTextEditor';
-import { FileUpload } from './FileUpload';
+import { FileUpload } from '@/components/form';
+import { AiPipelineResults } from './AiPipelineResults';
+import { AgentLogPanel } from './AgentLogPanel';
 
 interface TaskEditModalProps {
   taskId: string;
@@ -17,7 +19,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
   const { t } = useTranslation();
   
   // Get task directly from store - this ensures modal gets fresh data without re-mounting
-  const { boards, updateTask, deleteTask, removeAttachment } = useTaskStore();
+  const { boards, updateTask, deleteTask, removeAttachment, agents } = useTaskStore();
   const task = boards
     .flatMap(board => board.lists)
     .flatMap(list => list.tasks)
@@ -30,8 +32,6 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
   const [dueDate, setDueDate] = useState('');
   const [estimation, setEstimation] = useState('');
   const [assignee, setAssignee] = useState('');
-
-  const users = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve'];
 
   // Sync state when modal opens or task changes
   useEffect(() => {
@@ -127,6 +127,7 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
         data-testid="task-edit-modal"
         className="relative glass w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl animate-scale-in"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
@@ -250,10 +251,10 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
                 onChange={(e) => setAssignee(e.target.value)}
                 className="input-base"
               >
-                <option value="">Unassigned</option>
-                {users.map((user) => (
-                  <option key={user} value={user}>
-                    {user}
+                <option value="">{t('task.unassigned')}</option>
+                {agents.filter((a) => a.enabled).map((agent) => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.name} — {agent.role}
                   </option>
                 ))}
               </select>
@@ -328,6 +329,16 @@ export const TaskEditModal: React.FC<TaskEditModalProps> = ({ taskId, isOpen, on
           <div className="text-sm text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200 dark:border-slate-700">
             {t('task.createdAt')}: {format(new Date(task.createdAt), 'MMM dd, yyyy HH:mm')}
           </div>
+
+          {/* AI Pipeline Results */}
+          {task.aiStatus && task.aiStatus !== 'idle' && (
+            <AiPipelineResults task={task} />
+          )}
+
+          {/* Agent Log Panel */}
+          {task.aiAgentLog && task.aiAgentLog.length > 0 && (
+            <AgentLogPanel task={task} />
+          )}
         </div>
 
         {/* Footer */}

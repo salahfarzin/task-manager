@@ -1,0 +1,128 @@
+{
+  "app": {
+    "title": "Aufgabenverwaltung",
+    "boards": "Boards",
+    "myTasks": "Meine Aufgaben"
+  },
+  "board": {
+    "addList": "Liste hinzufügen",
+    "listTitle": "Listenname",
+    "addCard": "Karte hinzufügen",
+    "deleteList": "Liste löschen",
+    "new": {
+      "label": "Neues Board",
+      "placeholder": "Board-Name..."
+    },
+    "select": "Board auswählen",
+    "notFound": "Board nicht gefunden",
+    "settings": {
+      "title": "Board-Einstellungen",
+      "repoPath": "Repository",
+      "repoPathHint": "Eine GitHub-URL (github.com/user/repo) oder ein absoluter lokaler Pfad (/Users/you/projects/app). Agents nutzen dies zum Klonen oder Bearbeiten des Codes.",
+      "agentUrl": "Agent-Service-URL",
+      "agentUrlHint": "URL des KI-Microservices, der Aufgaben für dieses Board verarbeitet.",
+      "branchMaxLength": "Maximale Länge des Branch-Namens",
+      "branchMaxLengthHint": "Maximale Zeichen für den generierten Git-Branch-Namen (20–255). Standard: 128.",
+      "testCommand": "Testbefehl",
+      "testCommandHint": "Überschreibt den automatisch erkannten Test-Runner (z.B. make tests, npm run test:ci, go test ./..., python -m pytest). Leer lassen für automatische Erkennung.",
+      "microservices": "Zugehörige Microservices",
+      "addMicroservice": "Service hinzufügen",
+      "noMicroservices": "Noch keine Microservices konfiguriert.",
+      "removeMicroservice": "Service entfernen",
+      "msName": "Service-Name",
+      "msDescription": "Kurze Beschreibung (optional)"
+    }
+  },
+  "task": {
+    "title": "Aufgabentitel",
+    "description": "Beschreibung",
+    "addDescription": "Füge eine ausführlichere Beschreibung hinzu...",
+    "tags": "Tags",
+    "addTag": "Tag hinzufügen",
+    "attachments": "Anhänge",
+    "addAttachment": "Anhang hinzufügen",
+    "mentions": "Erwähnungen",
+    "createdAt": "Erstellt",
+    "estimation": "Schätzung (Stunden)",
+    "assignee": "Zugewiesen an",
+    "updatedAt": "Aktualisiert",
+    "delete": "Aufgabe löschen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Bearbeiten"
+  },
+  "action": {
+    "create": "Erstellen",
+    "update": "Aktualisieren",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "close": "Schließen"
+  },
+  "theme": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "toggle": "Design wechseln"
+  },
+  "language": {
+    "english": "Englisch",
+    "persian": "Persisch",
+    "toggle": "Sprache wechseln"
+  },
+  "placeholder": {
+    "taskTitle": "Aufgabentitel eingeben...",
+    "listName": "Listenname eingeben...",
+    "searchTasks": "Aufgaben suchen...",
+    "addComment": "Kommentar hinzufügen..."
+  },
+  "message": {
+    "taskCreated": "Aufgabe erfolgreich erstellt",
+    "taskUpdated": "Aufgabe erfolgreich aktualisiert",
+    "taskDeleted": "Aufgabe erfolgreich gelöscht",
+    "dragToReorder": "Ziehen zum Neuordnen"
+  },
+  "ai": {
+    "sendToAI": "An KI senden",
+    "enrichedTitle": "KI-verbesserter Titel",
+    "acceptanceCriteria": "Akzeptanzkriterien",
+    "working": "arbeitet...",
+    "changedFiles": "Geänderte Dateien",
+    "agentLog": "Agenten-Protokoll",
+    "pipelineResults": "KI-Pipeline-Ergebnisse",
+    "pipelineInProgress": "Pipeline läuft — Ergebnisse erscheinen hier, sobald Agenten fertig sind.",
+    "status": {
+      "idle": "Inaktiv",
+      "queued": "In der Warteschlange",
+      "enriching": "Wird angereichert",
+      "implementing": "Wird implementiert",
+      "qa_review": "QA-Überprüfung",
+      "po_review": "PO-Überprüfung",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt"
+    },
+    "agent": {
+      "enricher": "Anreicherung",
+      "spec": "Spezifikation",
+      "developer": "Entwickler",
+      "qa": "QA",
+      "po": "PO"
+    }
+  },
+  "agents": {
+    "title": "KI-Agenten",
+    "subtitle": "Konfigurieren Sie die Agenten, die Ihre Aufgaben verarbeiten.",
+    "role": "Rolle / Titel",
+    "goal": "Ziel",
+    "description": "Beschreibung",
+    "enable": "Agent aktivieren",
+    "disable": "Agent deaktivieren",
+    "id": {
+      "enricher": "Ticket-Anreicherung",
+      "spec": "Spezifikations-Autor",
+      "developer": "Entwickler",
+      "qa": "QA-Ingenieur",
+      "po": "Product Owner"
+    }
+  }
+}

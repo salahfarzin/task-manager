@@ -5,7 +5,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
-        'board.new': 'New Board',
+        'board.new.label': 'New Board',
         'board.new.placeholder': 'Enter board title...',
       };
       return translations[key] || key;

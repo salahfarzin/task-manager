@@ -10,6 +10,9 @@ export const CONFIGS = {
     // Base API URL
     API_URL: import.meta.env.VITE_API_URL || 'https://psychometrist.local/v1',
 
+    // Agent service URL (CrewAI + Aider backend)
+    AGENT_URL: import.meta.env.VITE_AGENT_URL || 'http://localhost:8000',
+
     // Environment mode
     MODE: import.meta.env.MODE,
     IS_DEV: import.meta.env.DEV,

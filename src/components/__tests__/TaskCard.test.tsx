@@ -36,9 +36,14 @@ const mockStore = {
       tasks: [mockTask]
     }]
   }],
+  currentBoardId: 'board-1',
+  agents: [
+    { id: 'developer', name: 'Developer', role: 'Principal Engineer', enabled: true, color: 'bg-orange-500', description: '', goal: '' },
+  ],
   updateTask: vi.fn(),
   deleteTask: vi.fn(),
   removeAttachment: vi.fn(),
+  queueTaskForAI: vi.fn(),
 }
 
 vi.mock('../../store/task-store', () => ({
@@ -73,7 +78,7 @@ vi.mock('../RichTextEditor', () => ({
   ),
 }))
 
-vi.mock('../FileUpload', () => ({
+vi.mock('@/components/form/FileUpload', () => ({
   FileUpload: ({ onClose }: { onClose: () => void }) => (
     <div data-testid="file-upload">
       <button onClick={onClose} data-testid="file-upload-close">Close Upload</button>
@@ -131,6 +136,9 @@ vi.mock('lucide-react', () => ({
   Calendar: () => <div data-testid="calendar-icon">Calendar</div>,
   User: () => <div data-testid="user-icon">User</div>,
   Clock: () => <div data-testid="clock-icon">Clock</div>,
+  Bot: () => <div data-testid="bot-icon">Bot</div>,
+  ChevronDown: () => <div data-testid="chevron-down-icon">ChevronDown</div>,
+  ChevronUp: () => <div data-testid="chevron-up-icon">ChevronUp</div>,
 }))
 
 describe('TaskCard', () => {
@@ -573,7 +581,7 @@ describe('TaskCard', () => {
       fireEvent.change(estimationInput, { target: { value: '8' } })
 
       const assigneeSelect = within(modal).getByRole('combobox')
-      fireEvent.change(assigneeSelect, { target: { value: 'Bob' } })
+      fireEvent.change(assigneeSelect, { target: { value: 'developer' } })
 
       const saveButton = within(modal).getByText('action.save')
       fireEvent.click(saveButton)
@@ -582,7 +590,7 @@ describe('TaskCard', () => {
         'task-1',
         expect.objectContaining({
           estimation: 8,
-          assignee: 'Bob',
+          assignee: 'developer',
         })
       )
     })

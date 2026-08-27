@@ -1,6 +1,36 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 
+export type AiStatus =
+    | 'idle'
+    | 'queued'
+    | 'enriching'
+    | 'implementing'
+    | 'qa_review'
+    | 'po_review'
+    | 'approved'
+    | 'rejected';
+
+export type AgentRole = 'enricher' | 'spec' | 'developer' | 'qa' | 'po';
+
+export interface AgentConfig {
+    id: AgentRole;
+    name: string;
+    role: string;
+    description: string;
+    goal: string;
+    enabled: boolean;
+    color: string; // tailwind bg color class
+}
+
+export interface AgentLogEntry {
+    id: string;
+    timestamp: Date;
+    agent: AgentRole;
+    status: 'started' | 'completed' | 'failed';
+    message: string;
+}
+
 export interface Attachment {
     id: string;
     name: string;
@@ -24,6 +54,17 @@ export interface Task {
     dueDate?: Date;
     estimation?: number;
     assignee?: string;
+    aiStatus?: AiStatus;
+    aiAgentLog?: AgentLogEntry[];
+    stepMessage?: string;
+    // Fields written back from the agent pipeline
+    enrichedTitle?: string;
+    enrichedDescription?: string;
+    acceptanceCriteria?: string;
+    branchName?: string;
+    changedFiles?: string[];
+    qaFeedback?: string;
+    poFeedback?: string;
 }
 
 export interface List {
@@ -31,12 +72,30 @@ export interface List {
     title: string;
     tasks: Task[];
     order: number;
+    isAiQueue?: boolean;
+}
+
+export interface Microservice {
+    id: string;
+    name: string;
+    url: string;
+    repoPath: string;
+    description: string;
+}
+
+export interface BoardSettings {
+    repoPath: string;
+    agentUrl: string;
+    microservices: Microservice[];
+    branchMaxLength: number;
+    testCommand: string;
 }
 
 export interface Board {
     id: string;
     title: string;
     lists: List[];
+    settings?: BoardSettings;
 }
 
 interface TaskStore {
@@ -45,6 +104,7 @@ interface TaskStore {
     addBoard: (title: string) => void;
     selectBoard: (boardId: string) => void;
     updateBoard: (boardId: string, updates: Partial<Board>) => void;
+    updateBoardSettings: (boardId: string, settings: BoardSettings) => void;
     deleteBoard: (boardId: string) => void;
     addList: (boardId: string, title: string) => void;
     updateList: (boardId: string, listId: string, title: string) => void;
@@ -58,6 +118,10 @@ interface TaskStore {
 
     addAttachment: (taskId: string, attachment: Omit<Attachment, 'id' | 'uploadedAt'>) => void;
     removeAttachment: (taskId: string, attachmentId: string) => void;
+    queueTaskForAI: (taskId: string) => void;
+
+    agents: AgentConfig[];
+    updateAgent: (id: AgentRole, updates: Partial<Omit<AgentConfig, 'id'>>) => void;
 }
 
 export const useTaskStore = create<TaskStore>((set) => ({
@@ -73,8 +137,8 @@ export const useTaskStore = create<TaskStore>((set) => ({
                     tasks: [
                         {
                             id: 'task-1',
-                            title: 'Welcome to Task Manager',
-                            description: '<p>This is a demo task. Click to edit!</p><p>You can:</p><ul><li>Add rich text descriptions</li><li>Upload attachments</li><li>Add tags</li><li>Mention team members</li></ul>',
+                            title: 'Implement audit logging for psychometrist system',
+                            description: 'I wanna to have audit logs of the system for psychometirst by event sourcing through kafka, kafka already is in place just we need to emit update e.g. before, after and so Consider best practices while development that align with idiomatic ways',
                             tags: ['welcome', 'demo'],
                             mentions: [],
                             attachments: [],
@@ -99,6 +163,13 @@ export const useTaskStore = create<TaskStore>((set) => ({
                     title: 'Done',
                     order: 2,
                     tasks: [],
+                },
+                {
+                    id: 'list-ai-queue',
+                    title: 'AI Queue',
+                    order: 3,
+                    tasks: [],
+                    isAiQueue: true,
                 },
             ],
         },
@@ -129,6 +200,13 @@ export const useTaskStore = create<TaskStore>((set) => ({
                         order: 2,
                         tasks: [],
                     },
+                    {
+                        id: uuidv4(),
+                        title: 'AI Queue',
+                        order: 3,
+                        tasks: [],
+                        isAiQueue: true,
+                    },
                 ],
             };
             return {
@@ -146,6 +224,13 @@ export const useTaskStore = create<TaskStore>((set) => ({
         set((state) => ({
             boards: state.boards.map((board) =>
                 board.id === boardId ? { ...board, ...updates } : board
+            ),
+        })),
+
+    updateBoardSettings: (boardId, settings) =>
+        set((state) => ({
+            boards: state.boards.map((board) =>
+                board.id === boardId ? { ...board, settings } : board
             ),
         })),
 
@@ -369,5 +454,145 @@ export const useTaskStore = create<TaskStore>((set) => ({
                     ),
                 })),
             })),
+        })),
+
+    queueTaskForAI: (taskId) =>
+        set((state) => {
+            let sourceBoard: typeof state.boards[number] | undefined;
+            let sourceListId: string | undefined;
+            let sourceTask: Task | undefined;
+
+            for (const board of state.boards) {
+                for (const list of board.lists) {
+                    const found = list.tasks.find((t) => t.id === taskId);
+                    if (found) {
+                        sourceBoard = board;
+                        sourceListId = list.id;
+                        sourceTask = found;
+                        break;
+                    }
+                }
+                if (sourceTask) {
+                    break;
+                }
+            }
+
+            if (!sourceBoard || !sourceListId || !sourceTask) {
+                return state;
+            }
+
+            const aiQueueList = sourceBoard.lists.find((l) => l.isAiQueue);
+
+            if (!aiQueueList || aiQueueList.id === sourceListId) {
+                return state;
+            }
+
+            const logEntry: AgentLogEntry = {
+                id: uuidv4(),
+                timestamp: new Date(),
+                agent: 'enricher',
+                status: 'started',
+                message: 'Task queued for AI processing.',
+            };
+
+            const updatedTask: Task = {
+                ...sourceTask,
+                listId: aiQueueList.id,
+                order: aiQueueList.tasks.length,
+                aiStatus: 'queued',
+                // Clear previous pipeline results so stale data doesn't linger
+                aiAgentLog: [logEntry],
+                enrichedTitle: undefined,
+                enrichedDescription: undefined,
+                acceptanceCriteria: undefined,
+                branchName: undefined,
+                changedFiles: undefined,
+                qaFeedback: undefined,
+                poFeedback: undefined,
+                updatedAt: new Date(),
+            };
+
+            return {
+                boards: state.boards.map((board) => {
+                    if (board.id !== sourceBoard!.id) {
+                        return board;
+                    }
+                    return {
+                        ...board,
+                        lists: board.lists.map((list) => {
+                            if (list.id === sourceListId) {
+                                return {
+                                    ...list,
+                                    tasks: list.tasks
+                                        .filter((t) => t.id !== taskId)
+                                        .map((t, i) => ({ ...t, order: i })),
+                                };
+                            }
+                            if (list.id === aiQueueList.id) {
+                                return {
+                                    ...list,
+                                    tasks: [...list.tasks, updatedTask],
+                                };
+                            }
+                            return list;
+                        }),
+                    };
+                }),
+            };
+        }),
+
+    agents: [
+        {
+            id: 'enricher',
+            name: 'Ticket Enricher',
+            role: 'Senior Engineering Manager',
+            description: 'Rewrites task titles and descriptions to be clear, actionable, and developer-friendly using INVEST criteria.',
+            goal: 'Produce precise, well-scoped engineering tickets',
+            enabled: true,
+            color: 'bg-yellow-500',
+        },
+        {
+            id: 'spec',
+            name: 'Spec Writer',
+            role: 'Software Architect',
+            description: 'Generates BDD acceptance criteria (Given/When/Then) and a numbered implementation plan of max 7 steps.',
+            goal: 'Create testable specifications before a single line of code is written',
+            enabled: true,
+            color: 'bg-blue-500',
+        },
+        {
+            id: 'developer',
+            name: 'Developer',
+            role: 'Principal Engineer',
+            description: 'Implements the feature using Aider on an isolated git worktree, then runs the full test suite to verify.',
+            goal: 'Ship working, tested code on a feature branch',
+            enabled: true,
+            color: 'bg-orange-500',
+        },
+        {
+            id: 'qa',
+            name: 'QA Engineer',
+            role: 'Quality Assurance Engineer',
+            description: 'Reviews the git diff and test results against the acceptance criteria, providing a pass/fail verdict.',
+            goal: 'Catch regressions and verify every acceptance criterion is met',
+            enabled: true,
+            color: 'bg-purple-500',
+        },
+        {
+            id: 'po',
+            name: 'Product Owner',
+            role: 'Product Owner',
+            description: 'Evaluates the completed feature from a business perspective and approves or rejects with specific feedback.',
+            goal: 'Approve only features that fully satisfy business requirements',
+            enabled: true,
+            color: 'bg-green-500',
+        },
+    ],
+
+    updateAgent: (id, updates) =>
+        set((state) => ({
+            agents: state.agents.map((agent) =>
+                agent.id === id ? { ...agent, ...updates } : agent
+            ),
         })),
 }));

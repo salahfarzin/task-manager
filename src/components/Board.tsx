@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Settings } from 'lucide-react';
 import { useTaskStore } from '../store/task-store';
 import { TaskList } from './TaskList';
+import { BoardSettingsModal } from './BoardSettingsModal';
 import {
   DndContext,
   DragOverlay,
@@ -60,6 +61,7 @@ export const Board: React.FC = () => {
   const [activeListId, setActiveListId] = useState<string | null>(null);
   const [isEditingBoardTitle, setIsEditingBoardTitle] = useState(false);
   const [boardTitle, setBoardTitle] = useState(currentBoard?.title || '');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -200,6 +202,7 @@ export const Board: React.FC = () => {
   const activeList = currentBoard.lists.find((list) => list.id === activeListId);
 
   return (
+    <>
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
@@ -209,6 +212,7 @@ export const Board: React.FC = () => {
     >
       <div className="container mx-auto px-6 py-6">
         <div className="mb-6">
+          <div className="flex items-center gap-3">
           {isEditingBoardTitle ? (
             <input
               type="text"
@@ -227,6 +231,15 @@ export const Board: React.FC = () => {
               {currentBoard.title}
             </h1>
           )}
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+            aria-label={t('board.settings.title')}
+            title={t('board.settings.title')}
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+          </div>
         </div>
 
         <div className="flex items-start gap-6 overflow-x-auto custom-scrollbar pb-6 px-1">
@@ -298,5 +311,10 @@ export const Board: React.FC = () => {
         )}
       </DragOverlay>
     </DndContext>
+
+    {isSettingsOpen && (
+      <BoardSettingsModal board={currentBoard} onClose={() => setIsSettingsOpen(false)} />
+    )}
+  </>
   );
 };

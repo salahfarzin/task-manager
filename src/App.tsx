@@ -15,12 +15,13 @@ const LanguageHandler = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const supportedLangs = ['en', 'fa'];
+    const supportedLangs = ['en', 'fa', 'de', 'fr', 'ckb', 'kmr'];
+    const rtlLangs = ['fa', 'ckb'];
     if (lang && supportedLangs.includes(lang)) {
       if (i18n.language !== lang) {
         i18n.changeLanguage(lang);
       }
-      document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+      document.documentElement.dir = rtlLangs.includes(lang) ? 'rtl' : 'ltr';
       document.documentElement.lang = lang;
     } else {
       // Default to English or current i18n language if invalid lang param

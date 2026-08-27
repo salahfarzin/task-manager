@@ -24,6 +24,9 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    /* JSON imports */
+    "resolveJsonModule": true,
+
     /* Path mapping */
     "baseUrl": ".",
     "paths": {

@@ -1,0 +1,128 @@
+{
+  "app": {
+    "title": "Gestionnaire de tâches",
+    "boards": "Tableaux",
+    "myTasks": "Mes tâches"
+  },
+  "board": {
+    "addList": "Ajouter une liste",
+    "listTitle": "Titre de la liste",
+    "addCard": "Ajouter une carte",
+    "deleteList": "Supprimer la liste",
+    "new": {
+      "label": "Nouveau tableau",
+      "placeholder": "Nom du tableau..."
+    },
+    "select": "Sélectionner un tableau",
+    "notFound": "Tableau introuvable",
+    "settings": {
+      "title": "Paramètres du tableau",
+      "repoPath": "Dépôt",
+      "repoPathHint": "Une URL GitHub (github.com/user/repo) ou un chemin local absolu (/Users/you/projects/app). Les agents utilisent ceci pour cloner le code ou travailler dessus.",
+      "agentUrl": "URL du service agent",
+      "agentUrlHint": "URL du microservice IA qui traite les tâches de ce tableau.",
+      "branchMaxLength": "Longueur maximale du nom de branche",
+      "branchMaxLengthHint": "Nombre maximum de caractères pour le nom de branche git généré (20–255). Défaut : 128.",
+      "testCommand": "Commande de test",
+      "testCommandHint": "Remplace le lanceur de tests détecté automatiquement (ex. make tests, npm run test:ci, go test ./..., python -m pytest). Laisser vide pour la détection automatique.",
+      "microservices": "Microservices associés",
+      "addMicroservice": "Ajouter un service",
+      "noMicroservices": "Aucun microservice configuré.",
+      "removeMicroservice": "Supprimer le service",
+      "msName": "Nom du service",
+      "msDescription": "Description courte (optionnel)"
+    }
+  },
+  "task": {
+    "title": "Titre de la tâche",
+    "description": "Description",
+    "addDescription": "Ajouter une description plus détaillée...",
+    "tags": "Étiquettes",
+    "addTag": "Ajouter une étiquette",
+    "attachments": "Pièces jointes",
+    "addAttachment": "Ajouter une pièce jointe",
+    "mentions": "Mentions",
+    "createdAt": "Créé",
+    "estimation": "Estimation (heures)",
+    "assignee": "Assigné à",
+    "updatedAt": "Mis à jour",
+    "delete": "Supprimer la tâche",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier"
+  },
+  "action": {
+    "create": "Créer",
+    "update": "Mettre à jour",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "close": "Fermer"
+  },
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "toggle": "Changer de thème"
+  },
+  "language": {
+    "english": "Anglais",
+    "persian": "Persan",
+    "toggle": "Changer de langue"
+  },
+  "placeholder": {
+    "taskTitle": "Saisir le titre de la tâche...",
+    "listName": "Saisir le nom de la liste...",
+    "searchTasks": "Rechercher des tâches...",
+    "addComment": "Ajouter un commentaire..."
+  },
+  "message": {
+    "taskCreated": "Tâche créée avec succès",
+    "taskUpdated": "Tâche mise à jour avec succès",
+    "taskDeleted": "Tâche supprimée avec succès",
+    "dragToReorder": "Faire glisser pour réorganiser"
+  },
+  "ai": {
+    "sendToAI": "Envoyer à l'IA",
+    "enrichedTitle": "Titre enrichi par l'IA",
+    "acceptanceCriteria": "Critères d'acceptation",
+    "working": "en cours...",
+    "changedFiles": "Fichiers modifiés",
+    "agentLog": "Journal de l'agent",
+    "pipelineResults": "Résultats du pipeline IA",
+    "pipelineInProgress": "Le pipeline est en cours — les résultats apparaîtront ici au fur et à mesure.",
+    "status": {
+      "idle": "Inactif",
+      "queued": "En attente",
+      "enriching": "Enrichissement en cours",
+      "implementing": "Implémentation en cours",
+      "qa_review": "Révision QA",
+      "po_review": "Révision PO",
+      "approved": "Approuvé",
+      "rejected": "Rejeté"
+    },
+    "agent": {
+      "enricher": "Enrichisseur",
+      "spec": "Spécification",
+      "developer": "Développeur",
+      "qa": "QA",
+      "po": "PO"
+    }
+  },
+  "agents": {
+    "title": "Agents IA",
+    "subtitle": "Configurez les agents qui traitent vos tâches dans le pipeline.",
+    "role": "Rôle / Titre",
+    "goal": "Objectif",
+    "description": "Description",
+    "enable": "Activer l'agent",
+    "disable": "Désactiver l'agent",
+    "id": {
+      "enricher": "Enrichisseur de tickets",
+      "spec": "Auteur de spec",
+      "developer": "Développeur",
+      "qa": "Ingénieur QA",
+      "po": "Product Owner"
+    }
+  }
+}

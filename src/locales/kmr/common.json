@@ -1,0 +1,128 @@
+{
+  "app": {
+    "title": "Rêveberiya Karan",
+    "boards": "Tabloyên",
+    "myTasks": "Karên Min"
+  },
+  "board": {
+    "addList": "Lîsteyê Zêde Bike",
+    "listTitle": "Sernavê Lîsteyê",
+    "addCard": "Kartê Zêde Bike",
+    "deleteList": "Lîsteyê Jê Bibe",
+    "new": {
+      "label": "Tabloya Nû",
+      "placeholder": "Navê tabloyê..."
+    },
+    "select": "Tabloyê Hilbijêre",
+    "notFound": "Tablo nehate dîtin",
+    "settings": {
+      "title": "Mîhengên Tabloyê",
+      "repoPath": "Depoya",
+      "repoPathHint": "URL-eke GitHub (github.com/user/repo) an rêça herêmî ya bêkêmasî (/Users/you/projects/app). Ajanan ev ji bo klonkirin an xebata li ser kodê bikar tînin.",
+      "agentUrl": "URL-a Servîsa Ajanê",
+      "agentUrlHint": "URL-a mîkroservîsa AI ya ku karên vê tabloyê pêk tîne.",
+      "branchMaxLength": "Dirêjahiya Herî Zêde ya Navê Şaxê",
+      "branchMaxLengthHint": "Herî zêde tîp ji bo navê şaxa git-a hatî çêkirin (20–255). Xwerû: 128.",
+      "testCommand": "Fermana Testê",
+      "testCommandHint": "Dawrûpêşiya rêvebiriya testê ya xwexweber digire (mînak make tests, npm run test:ci, go test ./..., python -m pytest). Ji bo xwexweber-nasîna cûreyê projeyê vala bihêle.",
+      "microservices": "Mîkroservîsên Têkildar",
+      "addMicroservice": "Servîsê Zêde Bike",
+      "noMicroservices": "Hîn mîkroservîsek nehatiye mîhengkirin.",
+      "removeMicroservice": "Servîsê Jê Bibe",
+      "msName": "Navê servîsê",
+      "msDescription": "Danasîna kurt (bijarte)"
+    }
+  },
+  "task": {
+    "title": "Sernavê Karê",
+    "description": "Danasîn",
+    "addDescription": "Danasînek bêtir zêde bike...",
+    "tags": "Etîket",
+    "addTag": "Etîketê Zêde Bike",
+    "attachments": "Pêvek",
+    "addAttachment": "Pêvekê Zêde Bike",
+    "mentions": "Behs",
+    "createdAt": "Hatiye Çêkirin",
+    "estimation": "Texmîn (Saet)",
+    "assignee": "Hatiye Destnîşankirin",
+    "updatedAt": "Hatiye Nûkirin",
+    "delete": "Karê Jê Bibe",
+    "save": "Tomarkirin",
+    "cancel": "Betal Bike",
+    "edit": "Sererast Bike"
+  },
+  "action": {
+    "create": "Çêkirin",
+    "update": "Nûkirin",
+    "delete": "Jêbirin",
+    "cancel": "Betal Bike",
+    "save": "Tomarkirin",
+    "edit": "Sererast Bike",
+    "close": "Girtin"
+  },
+  "theme": {
+    "light": "Ronî",
+    "dark": "Tarî",
+    "toggle": "Temayê Biguhere"
+  },
+  "language": {
+    "english": "English",
+    "persian": "Farisî",
+    "toggle": "Ziman Biguhere"
+  },
+  "placeholder": {
+    "taskTitle": "Sernavê karê binivîse...",
+    "listName": "Navê lîsteyê binivîse...",
+    "searchTasks": "Karan bigere...",
+    "addComment": "Şîroveyê zêde bike..."
+  },
+  "message": {
+    "taskCreated": "Kar bi serfirazî hatiye çêkirin",
+    "taskUpdated": "Kar bi serfirazî hatiye nûkirin",
+    "taskDeleted": "Kar bi serfirazî hatiye jêbirin",
+    "dragToReorder": "Bikişîne ji bo rêzkirinê"
+  },
+  "ai": {
+    "sendToAI": "Bişîne AI",
+    "enrichedTitle": "Sernavê baştirkirî ya AI",
+    "acceptanceCriteria": "Pîvanên qebûlkirinê",
+    "working": "dixebite…",
+    "changedFiles": "Pelikan guherand",
+    "agentLog": "Têkevtina Ajentê",
+    "pipelineResults": "Encamên pipeline ya AI",
+    "pipelineInProgress": "Pipeline dixebite — encam dê li vir xuya bibin.",
+    "status": {
+      "idle": "Bêkar",
+      "queued": "Di Rêzê de",
+      "enriching": "Dibe Dewlemendtir",
+      "implementing": "Tê Sepandin",
+      "qa_review": "Nirxandina QA",
+      "po_review": "Nirxandina PO",
+      "approved": "Pejirandî",
+      "rejected": "Redkirî"
+    },
+    "agent": {
+      "enricher": "Dewlemendker",
+      "spec": "Taybetmendî",
+      "developer": "Pêşdebir",
+      "qa": "QA",
+      "po": "PO"
+    }
+  },
+  "agents": {
+    "title": "Ajanên AI",
+    "subtitle": "Ajanên ku peywirên we pêvajoyê dikin mîheng bikin.",
+    "role": "Rol / Sernavek",
+    "goal": "Armanc",
+    "description": "Danasîn",
+    "enable": "Ajanê çalak bike",
+    "disable": "Ajanê neçalak bike",
+    "id": {
+      "enricher": "Dewlemendkerê Biletê",
+      "spec": "Nivîskarê Taybetmendiyê",
+      "developer": "Pêşdebir",
+      "qa": "Endezyarê QA",
+      "po": "Xwedanê Hilberê"
+    }
+  }
+}

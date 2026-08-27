@@ -185,6 +185,7 @@
     padding: 0.5rem 1rem;
     border-radius: 16px;
     font-weight: 500;
+    cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
     position: relative;
@@ -213,6 +214,15 @@
   }
 
   .btn-primary {
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     background: #3b82f6;
     color: white;
     border: 1px solid #3b82f6;
@@ -230,6 +240,15 @@
   }
 
   .btn-secondary {
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     background: #f8fafc;
     color: #374151;
     border: 1px solid #e5e7eb;

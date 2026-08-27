@@ -62,6 +62,17 @@ vi.mock('lucide-react', () => ({
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreVertical: () => <div data-testid="more-vertical-icon">MoreVertical</div>,
   Trash2: () => <div data-testid="trash-icon">Trash2</div>,
+  Bot: () => <div data-testid="bot-icon">Bot</div>,
+  ChevronDown: () => <div data-testid="chevron-down-icon">ChevronDown</div>,
+  ChevronUp: () => <div data-testid="chevron-up-icon">ChevronUp</div>,
+  Edit: () => <div data-testid="edit-icon">Edit</div>,
+  Paperclip: () => <div data-testid="paperclip-icon">Paperclip</div>,
+  Tag: () => <div data-testid="tag-icon">Tag</div>,
+  X: () => <div data-testid="x-icon">X</div>,
+  Save: () => <div data-testid="save-icon">Save</div>,
+  Calendar: () => <div data-testid="calendar-icon">Calendar</div>,
+  User: () => <div data-testid="user-icon">User</div>,
+  Clock: () => <div data-testid="clock-icon">Clock</div>,
 }))
 
 describe('TaskList', () => {

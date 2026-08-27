@@ -117,7 +117,7 @@ export const BoardSelector: React.FC = () => {
                   className="flex items-center space-x-2 rtl:space-x-reverse w-full p-3 text-start text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>{t('board.new')}</span>
+                  <span>{t('board.new.label')}</span>
                 </button>
               )}
             </div>

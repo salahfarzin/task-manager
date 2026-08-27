@@ -1,5 +1,5 @@
 import { render, screen, act } from '../../test/test-utils'
-import { FileUpload } from '../FileUpload'
+import { FileUpload } from '@/components/form';
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import userEvent from '@testing-library/user-event'
 
